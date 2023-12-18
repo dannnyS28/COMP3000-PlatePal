@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlatePal Recipe Manager</title>
+</head>
+<body>
+    <h1>PlatePal Recipe Manager</h1>
+    <p>Enter a recipe name:</p>
+    <input type="text" id="recipeNameInput" placeholder="Recipe Name">
+    <button id="recipeButton">Back</button>
+    <button id="saveRecipeButton">Save Recipe</button>
+    <button id="addIngredientButton">Add Ingredient</button>
+    <button id="calculateTotalButton">Calculate Total</button>
+    <div id="ingredientContainer"></div>
+    <div id="totalPriceContainer"></div>
+
+    <script>
+        const recipeButton = document.getElementById("recipeButton");
+        const saveRecipeButton = document.getElementById("saveRecipeButton");
+        const addIngredientButton = document.getElementById("addIngredientButton");
+        const calculateTotalButton = document.getElementById("calculateTotalButton");
+        const recipeNameInput = document.getElementById("recipeNameInput");
+        const ingredientContainer = document.getElementById("ingredientContainer");
+        const totalPriceContainer = document.getElementById("totalPriceContainer");
+        const recipes = [];
+
+        function calculateTotalPrice() {
+            const ingredientGroups = ingredientContainer.querySelectorAll("div");
+            let totalPrice = 0;
+
+            ingredientGroups.forEach(ingredientGroup => {
+                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+                const price = parseFloat(priceInput.value) || 0;
+                totalPrice += price;
+            });
+
+            // Display the total price in the totalPriceContainer
+            const totalPriceDisplay = document.createElement("p");
+            totalPriceDisplay.textContent = `Total Price: £${totalPrice.toFixed(2)}`;
+
+            // Clear previous content in the totalPriceContainer
+            totalPriceContainer.innerHTML = "";
+            totalPriceContainer.appendChild(totalPriceDisplay);
+        }
+
+        // Add event listeners to the buttons
+        recipeButton.addEventListener("click", function() {
+            window.location.href = "recipeslist.html";
+        });
+
+        addIngredientButton.addEventListener("click", function() {
+            // Create a new div to group the input fields
+            const ingredientGroup = document.createElement("div");
+
+            const newInputName = document.createElement("input");
+            newInputName.type = "text";
+            newInputName.placeholder = "Enter name";
+
+            const newSelectUnit = document.createElement("select");
+            const units = ["milligram", "gram", "kilogram", "milliliter", "litre", "teaspoon", "tablespoon", "cup"];
+            units.forEach(unit => {
+                const option = document.createElement("option");
+                option.value = unit;
+                option.text = unit;
+                newSelectUnit.appendChild(option);
+            });
+
+            const newInputAmount = document.createElement("input");
+            newInputAmount.type = "text";
+            newInputAmount.placeholder = "Enter amount";
+
+            const newInputPrice = document.createElement("input");
+            newInputPrice.type = "text";
+            newInputPrice.placeholder = "Enter price";
+
+            // Append the input fields to the ingredientGroup
+            ingredientGroup.appendChild(newInputName);
+            ingredientGroup.appendChild(newSelectUnit);
+            ingredientGroup.appendChild(newInputAmount);
+            ingredientGroup.appendChild(newInputPrice);
+            ingredientContainer.appendChild(ingredientGroup);
+            calculateTotalPrice();
+        });
+
+        calculateTotalButton.addEventListener("click", calculateTotalPrice);
+
+        saveRecipeButton.addEventListener("click", function() {
+            const recipeName = recipeNameInput.value;
+            const selectedRecipeIngredients = [];
+            const ingredientGroups = ingredientContainer.querySelectorAll("div");
+
+            ingredientGroups.forEach(ingredientGroup => {
+                const inputName = ingredientGroup.querySelector('input[type="text"][placeholder="Enter name"]');
+                const selectUnit = ingredientGroup.querySelector("select");
+                const selectedUnit = selectUnit.value;
+
+                const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
+                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+
+                const price = parseFloat(priceInput.value) || 0;
+
+                // Add selected name, unit, and price to the array
+                selectedRecipeIngredients.push({
+                    name: inputName.value,
+                    unit: selectedUnit,
+                    price: price
+                });
+            });
+
+            if (recipeName && selectedRecipeIngredients.length > 0) {
+                // Create a new recipe object
+                const newRecipe = {
+                    name: recipeName,
+                    ingredients: selectedRecipeIngredients
+                };
+                recipes.push(newRecipe);
+                console.log("Saved recipe:", newRecipe);
+            }
+
+            // Perform actions for exiting or redirection if needed
+            console.log("Exiting or redirecting...");
+        });
+    </script>
+</body>
+</html>
