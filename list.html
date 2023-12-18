@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlatePal</title>
+    <title>PlatePal Shopping List</title>
 </head>
 <body>
     <h1>PlatePal</h1>
@@ -11,94 +11,66 @@
     <button id="backButton">Back</button>
     <button id="saveExitButton">Save List</button>
     <button id="addItemButton">Add Item</button>
-    <button id="CompleteButton">Complete List</button>
+    <button id="completeButton">Complete List</button>
     <div id="ingredientContainer"></div>
-    <div id="PriceContainer"></div>
-
+    <div id="priceContainer"></div>
 
     <script>
-        
         const backButton = document.getElementById("backButton");
         const saveExitButton = document.getElementById("saveExitButton");
         const addItemButton = document.getElementById("addItemButton");
         const ingredientContainer = document.getElementById("ingredientContainer");
-        
-        const CompleteButton = document.getElementById("CompleteButton");
-        const PriceContainer = document.getElementById("PriceContainer");
-        const recipeContainer = document.getElementById("recipeContainer");
-        const recipes = [];
+        const completeButton = document.getElementById("completeButton");
+        const priceContainer = document.getElementById("priceContainer");
 
-        function populateRecipeDropdown() {
-            const recipeDropdown = document.createElement("select");
-
-            recipes.forEach(recipe => {
-                const option = document.createElement("option");
-                option.value = recipe.name;
-                option.text = recipe.name;
-                recipeDropdown.appendChild(option);
-            });
-
-            recipeContainer.innerHTML = "";
-            recipeContainer.appendChild(recipeDropdown);
-        }
+        const savedRecipes = ["Recipe 1", "Recipe 2", "Recipe 3"]; // Example saved recipes array
 
         function calculateTotalPrice() {
-            const ingredientGroups = ingredientContainer.querySelectorAll("div");
-            let totalPrice = 0;
-
-            ingredientGroups.forEach(ingredientGroup => {
-                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
-                if (priceInput) {
-                    const priceValue = parseFloat(priceInput.value);
-                    if (!isNaN(priceValue)) {
-                        totalPrice += priceValue;
-                    }
-                }
-            });
-
-            // Display the total price in the PriceContainer
-            const totalPriceDisplay = document.createElement("p");
-            totalPriceDisplay.textContent = `Total Price: £${totalPrice.toFixed(2)}`;
-
-            // Clear previous content in the PriceContainer
-            PriceContainer.innerHTML = "";
-            PriceContainer.appendChild(totalPriceDisplay);
+            // Calculate total price logic here...
         }
 
-        // Add event listeners to the buttons
+        // Populate the dropdown with saved recipe names
+        function populateDropdown() {
+            const dropdown = document.createElement("select");
+            savedRecipes.forEach(recipe => {
+                const option = document.createElement("option");
+                option.value = recipe;
+                option.text = recipe;
+                dropdown.appendChild(option);
+            });
+            return dropdown;
+        }
+        
         backButton.addEventListener("click", function() {
             window.location.href = "listdash.html";
         });
 
-        saveExitButton.addEventListener("click", function() {
-            window.location.href = "listdash.html";
-        });
-
         addItemButton.addEventListener("click", function() {
-            // Create a new div to group the input fields
             const ingredientGroup = document.createElement("div");
-            // ... (other code for adding inputs)
+
+            const recipeDropdown = populateDropdown();
+
+            const newButtonCancel = document.createElement("input");
+            newButtonCancel.type = "button";
+            newButtonCancel.value = "Delete";
+
+            ingredientGroup.appendChild(recipeDropdown);
+            ingredientGroup.appendChild(newButtonCancel);
             ingredientContainer.appendChild(ingredientGroup);
             calculateTotalPrice();
         });
 
-        CompleteButton.addEventListener("click", function() {
-            // Calculate total price based on selected recipe's ingredients
-            // Display the total price in the PriceContainer
-            // Clear previous content in the PriceContainer
+        completeButton.addEventListener("click", function() {
+            // Complete button logic...
+        });
+
+        ingredientContainer.addEventListener("click", function(event) {
+            // Click event logic...
         });
 
         saveExitButton.addEventListener("click", function() {
-            const recipeDropdown = recipeContainer.querySelector("select");
-            const selectedRecipeName = recipeDropdown.value;
-            if (selectedRecipeName && recipes.length > 0) {
-                // Find the recipe with the provided name
-                const recipe = recipes.find(r => r.name === selectedRecipeName);
-                if (recipe) {
-                    // Perform actions to save or process the recipe and its ingredients
-                    console.log("Saving recipe:", recipe);
-                }
-            }
+            const selectedRecipe = recipeDropdown.value;
+            console.log("Selected recipe:", selectedRecipe);
 
             // Perform actions for exiting or redirection if needed
             console.log("Exiting or redirecting...");
@@ -106,4 +78,3 @@
     </script>
 </body>
 </html>
-
