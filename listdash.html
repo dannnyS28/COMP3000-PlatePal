@@ -14,14 +14,20 @@
     </header>
 
     <nav>
-        <a href="dashboard.html">Dashboard</a>
+        <a href="dashboard.html">Home</a>
         <a href="recipeslist.html">Recipes</a>
         <a href="listdash.html">List</a>
         <a href="activity.html">Activity</a>
         <a href="account.html">Account</a>
     </nav>
-    <p>recipe</p>
-    <a href="list.html">Create New List</a>
+    <h1>Smart list</h1>
+    <button id="CreateListButton">Create Smart List</button>
+    <script>
+        const CreateListButton = document.getElementById("CreateListButton");
+        CreateListButton.addEventListener("click", function() {
+                window.location.href = "list.html";
+            });
+    </script>
 
 </body>
 

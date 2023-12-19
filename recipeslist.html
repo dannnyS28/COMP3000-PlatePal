@@ -14,15 +14,21 @@
     </header>
 
     <nav>
-        <a href="dashboard.html">Dashboard</a>
+        <a href="dashboard.html">Home</a>
         <a href="recipeslist.html">Recipes</a>
         <a href="listdash.html">List</a>
         <a href="activity.html">Activity</a>
         <a href="account.html">Account</a>
     </nav>
-    <p>recipe</p>
-    <a href="recipes.html">Create New Recipe</a>
-
+    <h1>recipe</h1>
+    <button id="CreateRecipeButton">Create New Recipe</button>
+    <script>
+        const CreateRecipeButton = document.getElementById("CreateRecipeButton");
+        CreateRecipeButton.addEventListener("click", function() {
+                window.location.href = "recipes.html";
+            });
+    </script>
 </body>
+
 
 </html>

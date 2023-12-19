@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlatePal Recipe Manager</title>
+    <link rel="stylesheet" href="Styles.css">
 </head>
+
 <body>
     <h1>PlatePal Recipe Manager</h1>
     <p>Enter a recipe name:</p>
@@ -12,7 +15,6 @@
     <button id="recipeButton">Back</button>
     <button id="saveRecipeButton">Save Recipe</button>
     <button id="addIngredientButton">Add Ingredient</button>
-    <button id="calculateTotalButton">Calculate Total</button>
     <div id="ingredientContainer"></div>
     <div id="totalPriceContainer"></div>
 
@@ -20,7 +22,6 @@
         const recipeButton = document.getElementById("recipeButton");
         const saveRecipeButton = document.getElementById("saveRecipeButton");
         const addIngredientButton = document.getElementById("addIngredientButton");
-        const calculateTotalButton = document.getElementById("calculateTotalButton");
         const recipeNameInput = document.getElementById("recipeNameInput");
         const ingredientContainer = document.getElementById("ingredientContainer");
         const totalPriceContainer = document.getElementById("totalPriceContainer");
@@ -32,7 +33,7 @@
 
             ingredientGroups.forEach(ingredientGroup => {
                 const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
-                const price = parseFloat(priceInput.value) || 0;
+                const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
                 totalPrice += price;
             });
 
@@ -45,12 +46,7 @@
             totalPriceContainer.appendChild(totalPriceDisplay);
         }
 
-        // Add event listeners to the buttons
-        recipeButton.addEventListener("click", function() {
-            window.location.href = "recipeslist.html";
-        });
-
-        addIngredientButton.addEventListener("click", function() {
+        function addIngredientGroup() {
             // Create a new div to group the input fields
             const ingredientGroup = document.createElement("div");
 
@@ -75,18 +71,39 @@
             newInputPrice.type = "text";
             newInputPrice.placeholder = "Enter price";
 
-            // Append the input fields to the ingredientGroup
+            // Add event listener to the price input for dynamic total calculation
+            newInputPrice.addEventListener("input", function () {
+                // Automatically add a pound sign (£) in front of the number
+                newInputPrice.value = `£${newInputPrice.value.replace(/[^0-9.]/g, '')}`;
+                calculateTotalPrice();
+            });
+
+            // Add a delete button
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.addEventListener("click", function () {
+                ingredientContainer.removeChild(ingredientGroup);
+                calculateTotalPrice();
+            });
+
+            // Append the input fields and delete button to the ingredientGroup
             ingredientGroup.appendChild(newInputName);
             ingredientGroup.appendChild(newSelectUnit);
             ingredientGroup.appendChild(newInputAmount);
             ingredientGroup.appendChild(newInputPrice);
+            ingredientGroup.appendChild(deleteButton);
             ingredientContainer.appendChild(ingredientGroup);
             calculateTotalPrice();
+        }
+
+        // Add event listeners to the buttons
+        recipeButton.addEventListener("click", function () {
+            window.location.href = "recipeslist.html";
         });
 
-        calculateTotalButton.addEventListener("click", calculateTotalPrice);
+        addIngredientButton.addEventListener("click", addIngredientGroup);
 
-        saveRecipeButton.addEventListener("click", function() {
+        saveRecipeButton.addEventListener("click", function () {
             const recipeName = recipeNameInput.value;
             const selectedRecipeIngredients = [];
             const ingredientGroups = ingredientContainer.querySelectorAll("div");
@@ -99,7 +116,7 @@
                 const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
                 const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
 
-                const price = parseFloat(priceInput.value) || 0;
+                const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
 
                 // Add selected name, unit, and price to the array
                 selectedRecipeIngredients.push({
@@ -124,4 +141,8 @@
         });
     </script>
 </body>
+
 </html>
+
+
+
