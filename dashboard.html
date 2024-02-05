@@ -28,6 +28,34 @@
     <U><H2>What Can It Do?</H2></U>
     <p>Platepal can be used to log recipes/diet plans, fitness activities and record progress analytics. Smart shopping lists are one of its most valued features where users can take recipes they have previously saved and put them into a shopping list so they are able to plan out the meals they will consume each week.</p>
     
+    <U><H2>How Do I Use It?</H2></U>
+    
+    <button id="CreateRecipeButton">Create A Recipe</button>
+    <button id="CreateListButton">Create A List</button>
+    <button id="ViewActivityButton">Log Fitness Actvity</button>
+    <script>
+        const CreateRecipeButton = document.getElementById("CreateRecipeButton");
+        CreateRecipeButton.addEventListener("click", function() {
+                window.location.href = "recipes.html";
+            });
+        
+        const CreateListButton = document.getElementById("CreateListButton");
+        CreateListButton.addEventListener("click", function() {
+                window.location.href = "list.html";
+            });
+        
+        const ViewActivityButton = document.getElementById("ViewActivityButton");
+        ViewActivityButton.addEventListener("click", function() {
+                window.location.href = "activity.html";
+            });
+    </script>
+    
+
+   
+
+
+
+    
 </body>
 
 </html>

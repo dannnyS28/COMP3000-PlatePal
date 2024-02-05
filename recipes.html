@@ -2,23 +2,23 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlatePal Recipe Manager</title>
-    <link rel="stylesheet" href="Styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PlatePal Recipe Manager</title>
+  <link rel="stylesheet" href="Styles.css">
 </head>
 
 <body>
-    <h1>PlatePal Recipe Manager</h1>
-    <p>Enter a recipe name:</p>
-    <input type="text" id="recipeNameInput" placeholder="Recipe Name">
-    <button id="recipeButton">Back</button>
-    <button id="saveRecipeButton">Save Recipe</button>
-    <button id="addIngredientButton">Add Ingredient</button>
-    <div id="ingredientContainer"></div>
-    <div id="totalPriceContainer"></div>
+  <h1>PlatePal Recipe Manager</h1>
+  <p>Enter a recipe name:</p>
+  <input type="text" id="recipeNameInput" placeholder="Recipe Name">
+  <button id="recipeButton">Back</button>
+  <button id="saveRecipeButton">Save Recipe</button>
+  <button id="addIngredientButton">Add Ingredient</button>
+  <div id="ingredientContainer"></div>
+  <div id="totalPriceContainer"></div>
 
-    <script>
+  <script>
         const recipeButton = document.getElementById("recipeButton");
         const saveRecipeButton = document.getElementById("saveRecipeButton");
         const addIngredientButton = document.getElementById("addIngredientButton");
@@ -127,22 +127,44 @@
             });
 
             if (recipeName && selectedRecipeIngredients.length > 0) {
-                // Create a new recipe object
-                const newRecipe = {
-                    name: recipeName,
-                    ingredients: selectedRecipeIngredients
-                };
-                recipes.push(newRecipe);
-                console.log("Saved recipe:", newRecipe);
+                // Send the recipe data to the server for saving
+                saveRecipe(recipeName, selectedRecipeIngredients);
             }
 
             // Perform actions for exiting or redirection if needed
             console.log("Exiting or redirecting...");
         });
+
+        function saveRecipe(recipeName, ingredients) {
+            // Create a new FormData object to send data to the server
+            const formData = new FormData();
+
+            // Append recipe name and ingredients as JSON to the form data
+            formData.append('recipeName', recipeName);
+            formData.append('ingredients', JSON.stringify(ingredients));
+
+            // Use fetch to send a POST request to the server
+            fetch('DatabasePut.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+                // You can add additional actions or redirect the user based on the response
+            })
+            .catch(error => {
+                console.error('Error saving recipe:', error.message);
+            });
+        }
+
+        
+        
     </script>
 </body>
 
 </html>
+
 
 
 

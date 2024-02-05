@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Website Title</title>
-    <link rel="stylesheet" href="Styles.css">
+    <link rel="stylesheet" href="./Styles.css">
 </head>
 
 <body>
@@ -20,15 +20,44 @@
         <a href="activity.html">Activity</a>
         <a href="account.html">Account</a>
     </nav>
+
     <h1>recipe</h1>
     <button id="CreateRecipeButton">Create New Recipe</button>
+    <div id="databaseList"></div>
+
     <script>
         const CreateRecipeButton = document.getElementById("CreateRecipeButton");
         CreateRecipeButton.addEventListener("click", function() {
-                window.location.href = "recipes.html";
+            window.location.href = "recipes.html";
+        });
+
+        fetch('DatabaseGet.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // Parse JSON
+            })
+            .then(data => {
+                // Call the formatData function to process and display the data
+                document.getElementById('databaseList').innerHTML = formatData(data);
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error.message);
+                document.getElementById('databaseList').innerHTML = 'Error fetching data. Please try again later.';
             });
+
+        function formatData(data) {
+            // Modify this function to format the data as needed for display
+            // For example, you can loop through the data and create HTML elements
+            let formattedData = "";
+            data.forEach(item => {
+                formattedData += `<p>${item.Recipe_Name}</p>`;
+            });
+            return formattedData;
+        }
     </script>
 </body>
 
-
 </html>
+
