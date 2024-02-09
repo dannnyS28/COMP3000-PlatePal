@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -31,7 +32,6 @@
             window.location.href = "recipes.html";
         });
 
-        // Function to delete a recipe
         function deleteRecipe(recipeID) {
             fetch('DatabaseDelete.php?recipeID=' + recipeID, {
                 method: 'DELETE'
@@ -40,23 +40,20 @@
                     if (!response.ok) {
                         throw new Error('Failed to delete recipe');
                     }
-                    // Refresh the recipe list after deletion
                     fetchRecipes();
                 })
                 .catch(error => console.error('Error deleting recipe:', error));
         }
 
-        // Function to fetch recipes from the server
         function fetchRecipes() {
             fetch('DatabaseGet.php')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    return response.json(); // Parse JSON
+                    return response.json();
                 })
                 .then(data => {
-                    // Display the recipes
                     displayRecipes(data);
                 })
                 .catch(error => {
@@ -65,23 +62,22 @@
                 });
         }
 
-        // Function to display the recipes
         function displayRecipes(recipes) {
             const databaseList = document.getElementById('databaseList');
-            databaseList.innerHTML = ''; // Clear previous content
+            databaseList.innerHTML = '';
 
             recipes.forEach(recipe => {
                 const recipeItem = document.createElement('div');
                 recipeItem.classList.add('recipe-item');
-
-                // Display recipe name
                 recipeItem.innerHTML = `<p>${recipe.Recipe_Name}</p>`;
                 
                 const editButton = document.createElement('button');
                 editButton.textContent = 'Edit';
+                editButton.addEventListener("click", function () {
+                    window.location.href = "editrecipe.html";
+                });
                 recipeItem.appendChild(editButton);
 
-                // Add delete button
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
                 deleteButton.addEventListener('click', () => deleteRecipe(recipe.Recipe_ID));
@@ -91,11 +87,10 @@
             });
         }
 
-        // Call fetchRecipes function when page loads
         window.onload = fetchRecipes;
     </script>
 </body>
-
 </html>
+
 
 

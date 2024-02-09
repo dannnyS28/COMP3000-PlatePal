@@ -1,35 +1,28 @@
 <?php
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle form submission
     $recipeName = $_POST['recipeName'];
     $ingredients = json_decode($_POST['ingredients'], true);
 
-    // Retrieve user ID from session (assuming it's stored in the session)
-    session_start(); // Start the session
-    $userId = 1; // Assuming 'user_id' is the session variable storing the user ID
+    session_start();
+    $userId = 1;
 
-    // Validate user ID
     if (!empty($userId) && is_numeric($userId)) {
         $servername = "proj-mysql.uopnet.plymouth.ac.uk";
         $username = "comp3000_dstephens";
         $password = "ZzuY937+";
         $database = "comp3000_dstephens";
 
-        // Create connection
         $conn = new mysqli($servername, $username, $password, $database);
 
-        // Check connection
         if ($conn->connect_error) {
             die("Connection failed: " . $conn->connect_error);
         }
 
-        // Insert recipe information into the database
         $sql_recipe = "INSERT INTO recipe_table (User_ID, Recipe_Name) VALUES ('$userId', '$recipeName')";
         if ($conn->query($sql_recipe) === TRUE) {
             $recipeId = $conn->insert_id;
 
-            // For inserting into ingredients_table
             foreach ($ingredients as $ingredient) {
                 $ingredientName = $ingredient['name'];
                 $unit = $ingredient['unit'];
@@ -45,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(array('message' => 'Error saving recipe.'));
         }
 
-        // Close connection
         $conn->close();
     } else {
         echo json_encode(array('message' => 'Invalid user ID.'));

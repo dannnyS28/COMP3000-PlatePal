@@ -24,13 +24,12 @@
         const completeButton = document.getElementById("completeButton");
         const priceContainer = document.getElementById("priceContainer");
 
-        const savedRecipes = ["Recipe 1", "Recipe 2", "Recipe 3"]; // Example saved recipes array
+        const savedRecipes = ["Recipe 1", "Recipe 2", "Recipe 3"];
 
         function calculateTotalPrice() {
             // Calculate total price logic here...
         }
 
-        // Populate the dropdown with saved recipe names
         function populateDropdown() {
             const dropdown = document.createElement("select");
             savedRecipes.forEach(recipe => {
@@ -73,9 +72,9 @@
             const selectedRecipe = recipeDropdown.value;
             console.log("Selected recipe:", selectedRecipe);
 
-            // Perform actions for exiting or redirection if needed
             console.log("Exiting or redirecting...");
         });
     </script>
 </body>
 </html>
+
