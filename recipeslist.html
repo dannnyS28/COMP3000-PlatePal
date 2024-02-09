@@ -21,43 +21,81 @@
         <a href="account.html">Account</a>
     </nav>
 
-    <h1>recipe</h1>
+    <h1>Recipes</h1>
     <button id="CreateRecipeButton">Create New Recipe</button>
     <div id="databaseList"></div>
 
     <script>
         const CreateRecipeButton = document.getElementById("CreateRecipeButton");
-        CreateRecipeButton.addEventListener("click", function() {
+        CreateRecipeButton.addEventListener("click", function () {
             window.location.href = "recipes.html";
         });
 
-        fetch('DatabaseGet.php')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json(); // Parse JSON
+        // Function to delete a recipe
+        function deleteRecipe(recipeID) {
+            fetch('DatabaseDelete.php?recipeID=' + recipeID, {
+                method: 'DELETE'
             })
-            .then(data => {
-                // Call the formatData function to process and display the data
-                document.getElementById('databaseList').innerHTML = formatData(data);
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error.message);
-                document.getElementById('databaseList').innerHTML = 'Error fetching data. Please try again later.';
-            });
-
-        function formatData(data) {
-            // Modify this function to format the data as needed for display
-            // For example, you can loop through the data and create HTML elements
-            let formattedData = "";
-            data.forEach(item => {
-                formattedData += `<p>${item.Recipe_Name}</p>`;
-            });
-            return formattedData;
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete recipe');
+                    }
+                    // Refresh the recipe list after deletion
+                    fetchRecipes();
+                })
+                .catch(error => console.error('Error deleting recipe:', error));
         }
+
+        // Function to fetch recipes from the server
+        function fetchRecipes() {
+            fetch('DatabaseGet.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // Parse JSON
+                })
+                .then(data => {
+                    // Display the recipes
+                    displayRecipes(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
+                    document.getElementById('databaseList').innerHTML = 'Error fetching data. Please try again later.';
+                });
+        }
+
+        // Function to display the recipes
+        function displayRecipes(recipes) {
+            const databaseList = document.getElementById('databaseList');
+            databaseList.innerHTML = ''; // Clear previous content
+
+            recipes.forEach(recipe => {
+                const recipeItem = document.createElement('div');
+                recipeItem.classList.add('recipe-item');
+
+                // Display recipe name
+                recipeItem.innerHTML = `<p>${recipe.Recipe_Name}</p>`;
+                
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                recipeItem.appendChild(editButton);
+
+                // Add delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', () => deleteRecipe(recipe.Recipe_ID));
+                recipeItem.appendChild(deleteButton);
+                            
+                databaseList.appendChild(recipeItem);
+            });
+        }
+
+        // Call fetchRecipes function when page loads
+        window.onload = fetchRecipes;
     </script>
 </body>
 
 </html>
+
 
