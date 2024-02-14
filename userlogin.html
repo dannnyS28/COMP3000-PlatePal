@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlatePal</title>
+    <link rel="stylesheet" href="Styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>PlatePal</h1>
+    </header>
+    <h1>Login</h1>
+    <input type="text" id="EmailInput" placeholder="Email">
+    <input type="password" id="PasswordInput" placeholder="Password"> <!-- Changed input type to password for secure entry -->
+    <button type="button" id="LoginButton">Login</button>
+</body>
+    <script>
+        
+        const LoginButton = document.getElementById("LoginButton");
+        const EmailInput = document.getElementById("EmailInput");
+        const PasswordInput = document.getElementById("PasswordInput");
+        const recipes = [];
+        
+        LoginButton.addEventListener("click", function () {
+            const UserEmail = EmailInput.value;
+            const UserPassword = PasswordInput.value;
+
+
+            if (UserEmail && UserPassword) { 
+                Login(UserEmail, UserPassword);
+            } else {
+                alert("Please input email and password."); 
+            }
+
+            console.log("Exiting or redirecting...");
+        });
+        
+        
+        function Login(Email, Password) {
+            const formData = new FormData();
+            formData.append('Email', Email);
+            formData.append('Password', Password);
+
+            fetch('DatabaseLogin.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+            })
+            .catch(error => {
+                console.error('Error Logging In:', error.message);
+            });
+        }
+    
+
+    </script>
+</html>

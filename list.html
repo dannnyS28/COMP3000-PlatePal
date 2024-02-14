@@ -24,20 +24,26 @@
         const completeButton = document.getElementById("completeButton");
         const priceContainer = document.getElementById("priceContainer");
 
-        const savedRecipes = ["Recipe 1", "Recipe 2", "Recipe 3"];
-
         function calculateTotalPrice() {
-            // Calculate total price logic here...
+            
         }
 
         function populateDropdown() {
             const dropdown = document.createElement("select");
-            savedRecipes.forEach(recipe => {
-                const option = document.createElement("option");
-                option.value = recipe;
-                option.text = recipe;
-                dropdown.appendChild(option);
-            });
+            
+            
+            fetch('DatabaseGet.php')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(recipe => {
+                        const option = document.createElement("option");
+                        option.value = recipe.Recipe_Name;
+                        option.text = recipe.Recipe_Name;
+                        dropdown.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching recipe names:', error));
+            
             return dropdown;
         }
         
@@ -61,11 +67,11 @@
         });
 
         completeButton.addEventListener("click", function() {
-            // Complete button logic...
+            
         });
 
         ingredientContainer.addEventListener("click", function(event) {
-            // Click event logic...
+            
         });
 
         saveExitButton.addEventListener("click", function() {
@@ -77,4 +83,5 @@
     </script>
 </body>
 </html>
+
 
