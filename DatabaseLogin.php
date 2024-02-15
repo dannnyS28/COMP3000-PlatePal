@@ -21,14 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-        $_SESSION['user'] = $Email;
+    $user_data = $result->fetch_assoc();
+    $_SESSION['user_id'] = $user_data['User_ID'];
+    $_SESSION['user_email'] = $user_data['User_Email'];
+    
+    header('Content-Type: application/json');
+    echo json_encode(array('message' => 'Login successful', 'user_id' => $user_data['User_ID']));
+} else {
+    header('Content-Type: application/json');
+    echo json_encode(array('message' => 'Invalid email or password'));
+}
 
-        header('Content-Type: application/json');
-        echo json_encode(array('message' => 'Login successful'));
-    } else {
-        header('Content-Type: application/json');
-        echo json_encode(array('message' => 'Invalid email or password'));
-    }
 
     $conn->close();
 }
