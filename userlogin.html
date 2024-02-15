@@ -14,31 +14,25 @@
     </header>
     <h1>Login</h1>
     <input type="text" id="EmailInput" placeholder="Email">
-    <input type="password" id="PasswordInput" placeholder="Password"> <!-- Changed input type to password for secure entry -->
+    <input type="password" id="PasswordInput" placeholder="Password">
     <button type="button" id="LoginButton">Login</button>
-</body>
+    
     <script>
-        
         const LoginButton = document.getElementById("LoginButton");
         const EmailInput = document.getElementById("EmailInput");
         const PasswordInput = document.getElementById("PasswordInput");
-        const recipes = [];
-        
+
         LoginButton.addEventListener("click", function () {
             const UserEmail = EmailInput.value;
             const UserPassword = PasswordInput.value;
-
 
             if (UserEmail && UserPassword) { 
                 Login(UserEmail, UserPassword);
             } else {
                 alert("Please input email and password."); 
             }
-
-            console.log("Exiting or redirecting...");
         });
-        
-        
+
         function Login(Email, Password) {
             const formData = new FormData();
             formData.append('Email', Email);
@@ -51,12 +45,18 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data.message);
+                
+                if(data.message === 'Login successful') {
+                    window.location.href = "dashboard.html";     
+                } else {
+                    alert("Login failed. Please check your credentials.");
+                }
             })
             .catch(error => {
                 console.error('Error Logging In:', error.message);
             });
         }
-    
-
     </script>
+</body>
 </html>
+

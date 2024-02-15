@@ -4,9 +4,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $Email = $_POST['Email'];
     $Password = $_POST['Password'];
 
-
     session_start();
-
 
     $servername = "proj-mysql.uopnet.plymouth.ac.uk";
     $username = "comp3000_dstephens";
@@ -19,39 +17,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    $sql = "SELECT * FROM user_table";
+    $sql = "SELECT * FROM user_table WHERE User_Email = '$Email' AND User_Password = '$Password'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-        $data = array();
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
-        }
-        if (in_array($Email, $array)) {
-            echo 'this array contains Email';
-            if (in_array($Password, $array)) {
-                echo 'this array contains Password';
-            }
-            else{
-                echo 'this array doesnt contain password';
-            }
-        }
-        
-        else{
-            echo 'this array doesnt contain email';
-        }
+        $_SESSION['user'] = $Email;
 
         header('Content-Type: application/json');
-        echo json_encode($data);
-    } 
-    else {
+        echo json_encode(array('message' => 'Login successful'));
+    } else {
         header('Content-Type: application/json');
-        echo json_encode(array('message' => 'No data found'));
+        echo json_encode(array('message' => 'Invalid email or password'));
     }
 
     $conn->close();
 }
 ?>
+
+
 
 
 
