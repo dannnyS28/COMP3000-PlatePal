@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,7 +8,7 @@
     <link rel="stylesheet" href="./Styles.css">
 </head>
 
-<body>
+<body style="display: none;">
     <header>
         <h1>PlatePal</h1>
     </header>
@@ -55,10 +54,12 @@
                 })
                 .then(data => {
                     displayRecipes(data);
+                    document.body.style.display = ''; 
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error.message);
                     document.getElementById('databaseList').innerHTML = 'Error fetching data. Please try again later.';
+                    document.body.style.display = ''; 
                 });
         }
 
@@ -91,6 +92,7 @@
     </script>
 </body>
 </html>
+
 
 
 

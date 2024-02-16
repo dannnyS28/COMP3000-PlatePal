@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="Styles.css">
 </head>
 
-<body>
+<body style="display: none;"> 
+
     <header>
         <h1>PlatePal</h1>
     </header>
@@ -20,42 +21,53 @@
         <a href="activity.html">Activity</a>
         <a href="account.html">Account</a>
     </nav>
-    <H1>Welcome NAME, to PlatePal</H1>
-    
+
+    <h1 id="welcomeMessage" style="display: none;">Welcome <span id="Forename"></span>, to PlatePal</h1>
+
     <U><H2>What Is It?</H2></U>
-    <p>PlatePal is a health and fitness platform that allows users to keep track of what they are eating and monitor their fintess activities. PlatePal uses a secure SQL server to store all of its users data and monitor their analytics.</p>
+    <p>PlatePal is a health and fitness platform that allows users to keep track of what they are eating and monitor their fitness activities. PlatePal uses a secure SQL server to store all of its users' data and monitor their analytics.</p>
     
     <U><H2>What Can It Do?</H2></U>
-    <p>Platepal can be used to log recipes/diet plans, fitness activities and record progress analytics. Smart shopping lists are one of its most valued features where users can take recipes they have previously saved and put them into a shopping list so they are able to plan out the meals they will consume each week.</p>
+    <p>Platepal can be used to log recipes/diet plans, fitness activities, and record progress analytics. Smart shopping lists are one of its most valued features where users can take recipes they have previously saved and put them into a shopping list so they are able to plan out the meals they will consume each week.</p>
     
     <U><H2>How Do I Use It?</H2></U>
     
     <button id="CreateRecipeButton">Create A Recipe</button>
     <button id="CreateListButton">Create A List</button>
-    <button id="ViewActivityButton">Log Fitness Actvity</button>
+    <button id="ViewActivityButton">Log Fitness Activity</button>
+
     <script>
-        const CreateRecipeButton = document.getElementById("CreateRecipeButton");
-        CreateRecipeButton.addEventListener("click", function() {
-                window.location.href = "recipes.html";
-            });
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchAccount();
+        });
+
+        function fetchAccount() {
+            fetch('DatabaseGetAccount.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayAccount(data);
+                    document.body.style.display = ''; 
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
+                    
+                });
+        }
         
-        const CreateListButton = document.getElementById("CreateListButton");
-        CreateListButton.addEventListener("click", function() {
-                window.location.href = "list.html";
-            });
-        
-        const ViewActivityButton = document.getElementById("ViewActivityButton");
-        ViewActivityButton.addEventListener("click", function() {
-                window.location.href = "activity.html";
-            });
+        function displayAccount(account) {
+            const Forename = document.getElementById('Forename');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+
+            Forename.textContent = account.User_Name;
+            welcomeMessage.style.display = 'block'; 
+        }
     </script>
-    
-
-   
-
-
-
-    
 </body>
 
 </html>
+

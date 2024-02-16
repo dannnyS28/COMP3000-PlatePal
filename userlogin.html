@@ -16,11 +16,16 @@
     <input type="text" id="EmailInput" placeholder="Email">
     <input type="password" id="PasswordInput" placeholder="Password">
     <button type="button" id="LoginButton">Login</button>
+    <p>Don't Have an account?</p>
+    <button id=SignUpButton>Sign Up</button>
     
     <script>
         const LoginButton = document.getElementById("LoginButton");
         const EmailInput = document.getElementById("EmailInput");
         const PasswordInput = document.getElementById("PasswordInput");
+        const SignUpButton = document.getElementById("SignUpButton");
+
+        
 
         LoginButton.addEventListener("click", function () {
             const UserEmail = EmailInput.value;

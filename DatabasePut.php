@@ -1,13 +1,14 @@
 <?php
 
+session_start();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $recipeName = $_POST['recipeName'];
     $ingredients = json_decode($_POST['ingredients'], true);
 
-    session_start();
-    $userId = 1;
+    if (isset($_SESSION['user_id'])) {
+        $userId = $_SESSION['user_id'];
 
-    if (!empty($userId) && is_numeric($userId)) {
         $servername = "proj-mysql.uopnet.plymouth.ac.uk";
         $username = "comp3000_dstephens";
         $password = "ZzuY937+";
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $conn->close();
     } else {
-        echo json_encode(array('message' => 'Invalid user ID.'));
+        echo json_encode(array('message' => 'User is not logged in.'));
     }
 } else {
     echo json_encode(array('message' => 'Invalid request method.'));

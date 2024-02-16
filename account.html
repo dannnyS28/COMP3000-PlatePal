@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="Styles.css">
 </head>
 
-<body>
+<body style="display: none;">
     <header>
         <h1>PlatePal</h1>
     </header>
@@ -20,27 +20,82 @@
         <a href="activity.html">Activity</a>
         <a href="account.html">Account</a>
     </nav>
-    <h1>account</h1>
-    <p>Forename:</p>
-    <p>Surename:</p>
-    <p>Date of Birth:</p>
-    <p>Password:</p>
-    <p>Email:</p>
-    <button id=EditButton>Edit</button>
-    <button id=LogoutButton>Logout</button>
+    <h1>Account</h1>
+    <p>Forename: <input id="Forename" type="text" readonly></p>
+    <p>Surname: <input id="Surname" type="text" readonly></p>
+    <p>Date of Birth: <input id="DOB" type="text" readonly></p>
+    <p>Password: <input id="Password" type="text" readonly></p>
+    <p>Email: <input id="Email" type="text" readonly></p>
+    <button id="EditButton">Edit</button>
+    <button id="LogoutButton">Logout</button>
+    
     
     <script>
         
         const LogoutButton = document.getElementById("LogoutButton");
-        
-        
+        const EditButton = document.getElementById("EditButton");
+        let EditStatus = false;
+
+        EditButton.addEventListener("click", function () {
+            if (!EditStatus) {
+                document.getElementById('EditButton').innerHTML = 'Submit';
+                document.getElementById('Forename').readOnly = false;
+                document.getElementById('Surname').readOnly = false;
+                document.getElementById('DOB').readOnly = false;
+                document.getElementById('Password').readOnly = false;
+                document.getElementById('Email').readOnly = false;
+                EditStatus = true;
+            } else {
+                document.getElementById('EditButton').innerHTML = 'Edit';
+                document.getElementById('Forename').readOnly = true;
+                document.getElementById('Surname').readOnly = true;
+                document.getElementById('DOB').readOnly = true;
+                document.getElementById('Password').readOnly = true;
+                document.getElementById('Email').readOnly = true;
+                EditStatus = false;
+            }
+        });
+
         LogoutButton.addEventListener("click", function () {
             window.location.href = "userlogin.html";
         });
-    
-    
+        
+        function fetchAccount() {
+            fetch('DatabaseGetAccount.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayAccount(data);
+                    document.body.style.display = '';
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
+                    document.body.style.display = ''; 
+                });
+        }
+        
+        function displayAccount(account) {
+            const Forename = document.getElementById('Forename');
+            const Surname = document.getElementById('Surname');
+            const DOB = document.getElementById('DOB');
+            const Password = document.getElementById('Password');
+            const Email = document.getElementById('Email');
+
+            Forename.value = account.User_Name;
+            Surname.value = account.User_Surname;
+            DOB.value = account.User_DOB;
+            Password.value = account.User_Password;
+            Email.value = account.User_Email;
+        }
+
+        window.onload = fetchAccount;
     
     </script>
 </body>
 
 </html>
+
