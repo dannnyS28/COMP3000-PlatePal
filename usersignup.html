@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlatePal</title>
+    <link rel="stylesheet" href="Styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>PlatePal</h1>
+    </header>
+    <form id="signupForm">
+        <h1>Sign Up</h1>
+        <p>Forename: <input id="ForenameInput" type="text" placeholder="Forename" required></p>
+        <p>Surname: <input id="SurnameInput" type="text" placeholder="Surname" required></p>
+        <p>Date of Birth: <input id="DOBInput" type="text" pattern="\d{4}-\d{2}-\d{2}" placeholder="YYYY-MM-DD" required></p>
+        <p>Password: <input id="PasswordInput" type="password" placeholder="Password" required></p>
+        <p>Email: <input id="EmailInput" type="email" placeholder="Email" required></p>
+        <button id="BackButton">Back</button>
+        <button type="submit" id="CreateAccountButton">Create Account</button>
+    </form>
+
+    
+    <script>
+        
+        const dobInput = document.getElementById("DOBInput");
+
+        dobInput.addEventListener("input", function() {
+            
+            const formattedValue = this.value.replace(/\D/g, "").slice(0, 8); 
+            const year = formattedValue.slice(0, 4);
+            const month = formattedValue.slice(4, 6);
+            const day = formattedValue.slice(6, 8);
+
+            this.value = year + (month ? "-" + month : "") + (day ? "-" + day : "");
+        });
+        
+        const BackButton = document.getElementById("BackButton");
+
+        BackButton.addEventListener("click", function () {
+            window.location.href = "userlogin.html";
+        });
+        
+        document.getElementById("signupForm").addEventListener("submit", function(event) {
+            event.preventDefault(); 
+
+            const forename = document.getElementById("ForenameInput").value;
+            const surname = document.getElementById("SurnameInput").value;
+            const dob = document.getElementById("DOBInput").value;
+            const password = document.getElementById("PasswordInput").value;
+            const email = document.getElementById("EmailInput").value;
+
+            signUp(forename, surname, dob, password, email);
+        });
+
+        function signUp(forename, surname, dob, password, email) {
+            const formData = new FormData();
+            formData.append('Forename', forename);
+            formData.append('Surname', surname);
+            formData.append('DOB', dob);
+            formData.append('Password', password);
+            formData.append('Email', email);
+
+            fetch('DatabaseSignUp.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message);
+
+                if (data.message === 'success') {
+                    window.location.href = "userlogin.html";     
+                } else {
+                    alert("Account Creation Failed");
+                }
+            })
+            .catch(error => {
+                console.error('Error Creating Account', error.message);
+            });
+        }
+
+        
+    </script>
+</body>
+</html>

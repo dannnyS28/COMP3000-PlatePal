@@ -37,6 +37,11 @@
                 alert("Please input email and password."); 
             }
         });
+        
+        SignUpButton.addEventListener("click", function () {
+            window.location.href = "usersignup.html"; 
+            
+        });
 
         function Login(Email, Password) {
             const formData = new FormData();
@@ -51,11 +56,12 @@
             .then(data => {
                 console.log(data.message);
                 
-                if(data.message === 'Login successful') {
+                if (data.message === 'Login successful') {
                     window.location.href = "dashboard.html";     
                 } else {
-                    alert("Login failed. Please check your credentials.");
+                    alert("Account Creation Failed");
                 }
+
             })
             .catch(error => {
                 console.error('Error Logging In:', error.message);
