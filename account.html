@@ -53,8 +53,34 @@
                 document.getElementById('Password').readOnly = true;
                 document.getElementById('Email').readOnly = true;
                 EditStatus = false;
+
+                const updatedDetails = {
+                    Forename: document.getElementById('Forename').value,
+                    Surname: document.getElementById('Surname').value,
+                    DOB: document.getElementById('DOB').value,
+                    Password: document.getElementById('Password').value,
+                    Email: document.getElementById('Email').value
+                };
+
+                fetch('DatabaseUpdateAccount.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedDetails)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    fetchAccount();
+                })
+                .catch(error => {
+                    console.error('Error updating account details:', error.message);
+                });
             }
         });
+
 
         LogoutButton.addEventListener("click", function () {
             window.location.href = "userlogin.html";

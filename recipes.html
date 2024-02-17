@@ -138,6 +138,7 @@
             .then(response => response.json())
             .then(data => {
                 console.log(data.message);
+                window.location.href = "recipeslist.html";
             })
             .catch(error => {
                 console.error('Error saving recipe:', error.message);
