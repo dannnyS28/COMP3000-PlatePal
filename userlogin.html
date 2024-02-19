@@ -9,23 +9,46 @@
 </head>
 
 <body>
-    <header>
+    <header>        
         <h1>PlatePal</h1>
+        <h3 id="dynamic-text">Recipe Creation Platform</h3>
     </header>
-    <h1>Login</h1>
+    <h2>Login</h2>
     <input type="text" id="EmailInput" placeholder="Email">
     <input type="password" id="PasswordInput" placeholder="Password">
     <button type="button" id="LoginButton">Login</button>
     <p>Don't Have an account?</p>
     <button id=SignUpButton>Sign Up</button>
+
     
     <script>
         const LoginButton = document.getElementById("LoginButton");
         const EmailInput = document.getElementById("EmailInput");
         const PasswordInput = document.getElementById("PasswordInput");
         const SignUpButton = document.getElementById("SignUpButton");
+        
+        const dynamicTextArray = ["Diet Helper", "Activity Logger", "Healthy Living Companion", "Your Personal Wellness Assistant"];
+        
 
         
+        function animateDynamicText() {
+            const dynamicTextElement = document.getElementById("dynamic-text");
+            let index = 0;
+
+                    function updateText() {
+            const dynamicTextElement = document.getElementById("dynamic-text");
+            dynamicTextElement.classList.add('fade-effect');
+
+            setTimeout(() => {
+                dynamicTextElement.textContent = dynamicTextArray[index];
+                setTimeout(() => {
+                    dynamicTextElement.classList.remove('fade-effect'); 
+                }, 500); 
+                index = (index + 1) % dynamicTextArray.length;
+            }, 500); 
+        }
+            setInterval(updateText, 5000); 
+        }
 
         LoginButton.addEventListener("click", function () {
             const UserEmail = EmailInput.value;
@@ -67,6 +90,9 @@
                 console.error('Error Logging In:', error.message);
             });
         }
+        
+        animateDynamicText();
+
     </script>
 </body>
 </html>

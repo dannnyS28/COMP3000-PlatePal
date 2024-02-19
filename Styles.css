@@ -61,3 +61,21 @@ img {
     font-weight: bold;
 }
 
+/* Add this to your Styles.css file */
+@keyframes fadeInOut {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-effect {
+  animation: fadeInOut 1s linear infinite; /* Adjust timing as needed */
+}
+
+

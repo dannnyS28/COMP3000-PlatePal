@@ -74,9 +74,12 @@
                 
                 const editButton = document.createElement('button');
                 editButton.textContent = 'Edit';
+                
                 editButton.addEventListener("click", function () {
-                    window.location.href = "editrecipe.html";
+                    window.location.href = "editrecipe.html?recipeID=" + recipe.Recipe_ID;
                 });
+
+                
                 recipeItem.appendChild(editButton);
 
                 const deleteButton = document.createElement('button');
