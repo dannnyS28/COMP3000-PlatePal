@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $amount = isset($ingredient['amount']) ? $ingredient['amount'] : 0;
                 $price = $ingredient['price'];
 
-                $sql_ingredient = "INSERT INTO ingredients_table (Recipe_ID, Ingredient_Name, Ingredient_Unit, Ingredient_Amount, Ingredient_Price) VALUES ('$recipeId', '$ingredientName', '$unit', '$amount', '$price')";
+                $sql_ingredient = "INSERT INTO ingredients_table (Recipe_ID, User_ID, Ingredient_Name, Ingredient_Unit, Ingredient_Amount, Ingredient_Price) VALUES ('$recipeId', '$userId', '$ingredientName', '$unit', '$amount', '$price')";
                 $conn->query($sql_ingredient);
             }
 

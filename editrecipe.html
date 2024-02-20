@@ -1,148 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PlatePal</title>
-  <link rel="stylesheet" href="Styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Recipe</title>
+    <link rel="stylesheet" href="Styles.css">
 </head>
+
 <body>
-  <h1>PlatePal Recipe Manager</h1>
-  <p>Enter a recipe name:</p>
-  <input type="text" id="recipeNameInput" placeholder="Recipe Name">
-  <button id="recipeButton">Back</button>
-  <button id="saveRecipeButton">Save Recipe</button>
-  <button id="addIngredientButton">Add Ingredient</button>
-  <div id="ingredientContainer"></div>
-  <div id="totalPriceContainer"></div>
+    <header>
+        <h1>Edit Recipe</h1>
+    </header>
 
-  <script>
-        const recipeButton = document.getElementById("recipeButton");
-        const saveRecipeButton = document.getElementById("saveRecipeButton");
-        const addIngredientButton = document.getElementById("addIngredientButton");
-        const recipeNameInput = document.getElementById("recipeNameInput");
-        const ingredientContainer = document.getElementById("ingredientContainer");
-        const totalPriceContainer = document.getElementById("totalPriceContainer");
-        const recipes = [];
+    <nav>
+        <a href="recipeslist.html">Back</a>
+    </nav>
 
-        function calculateTotalPrice() {
-            const ingredientGroups = ingredientContainer.querySelectorAll("div");
-            let totalPrice = 0;
+    <form id="editRecipeForm">
+        <label for="recipeName">Recipe Name:</label><br>
+        <input type="text" id="recipeName" name="recipeName"><br>
 
-            ingredientGroups.forEach(ingredientGroup => {
-                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
-                const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
-                totalPrice += price;
-            });
+        <div id="ingredientDetailsContainer"></div>
 
-            const totalPriceDisplay = document.createElement("p");
-            totalPriceDisplay.textContent = `Total Price: £${totalPrice.toFixed(2)}`;
+        <button type="submit">Save Changes</button>
+    </form>
 
-            totalPriceContainer.innerHTML = "";
-            totalPriceContainer.appendChild(totalPriceDisplay);
-        }
+    <script>
+        const recipeID = new URLSearchParams(window.location.search).get('recipeID');
 
-        function addIngredientGroup() {
-            const ingredientGroup = document.createElement("div");
+        window.onload = function () {
+            fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('recipeName').value = data.Recipe_Name;
 
-            const newInputName = document.createElement("input");
-            newInputName.type = "text";
-            newInputName.placeholder = "Enter name";
+                    const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
+                    const ingredientDetails = data.Ingredients_Details.split(',');
+                    ingredientDetails.forEach(ingredientDetail => {
+                        const [name, unit, amount, price] = ingredientDetail.trim().split(' ');
+                        const nameLabel = document.createElement('label');
+                        nameLabel.textContent = 'Ingredient Name:';
+                        const nameInput = document.createElement('input');
+                        nameInput.type = 'text';
+                        nameInput.value = name;
+                        const unitLabel = document.createElement('label');
+                        unitLabel.textContent = 'Unit:';
+                        const unitInput = document.createElement('input');
+                        unitInput.type = 'text';
+                        unitInput.value = unit;
+                        const amountLabel = document.createElement('label');
+                        amountLabel.textContent = 'Amount:';
+                        const amountInput = document.createElement('input');
+                        amountInput.type = 'text';
+                        amountInput.value = amount;
+                        const priceLabel = document.createElement('label');
+                        priceLabel.textContent = 'Price:';
+                        const priceInput = document.createElement('input');
+                        priceInput.type = 'text';
+                        priceInput.value = price;
+                        ingredientDetailsContainer.appendChild(nameLabel);
+                        ingredientDetailsContainer.appendChild(nameInput);
+                        ingredientDetailsContainer.appendChild(unitLabel);
+                        ingredientDetailsContainer.appendChild(unitInput);
+                        ingredientDetailsContainer.appendChild(amountLabel);
+                        ingredientDetailsContainer.appendChild(amountInput);
+                        ingredientDetailsContainer.appendChild(priceLabel);
+                        ingredientDetailsContainer.appendChild(priceInput);
+                        ingredientDetailsContainer.appendChild(document.createElement('br'));
+                    });
+                })
+                .catch(error => console.error('Error fetching recipe details:', error));
+        };
 
-            const newSelectUnit = document.createElement("select");
-            const units = ["milligram", "gram", "kilogram", "milliliter", "litre", "teaspoon", "tablespoon", "cup"];
-            units.forEach(unit => {
-                const option = document.createElement("option");
-                option.value = unit;
-                option.text = unit;
-                newSelectUnit.appendChild(option);
-            });
+        document.getElementById('editRecipeForm').addEventListener('submit', function (event) {
+            event.preventDefault();
 
-            const newInputAmount = document.createElement("input");
-            newInputAmount.type = "text";
-            newInputAmount.placeholder = "Enter amount";
+            const formData = new FormData(this);
 
-            const newInputPrice = document.createElement("input");
-            newInputPrice.type = "text";
-            newInputPrice.placeholder = "Enter price";
-
-            newInputPrice.addEventListener("input", function () {
-                newInputPrice.value = `£${newInputPrice.value.replace(/[^0-9.]/g, '')}`;
-                calculateTotalPrice();
-            });
-
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.addEventListener("click", function () {
-                ingredientContainer.removeChild(ingredientGroup);
-                calculateTotalPrice();
-            });
-
-            ingredientGroup.appendChild(newInputName);
-            ingredientGroup.appendChild(newSelectUnit);
-            ingredientGroup.appendChild(newInputAmount);
-            ingredientGroup.appendChild(newInputPrice);
-            ingredientGroup.appendChild(deleteButton);
-            ingredientContainer.appendChild(ingredientGroup);
-            calculateTotalPrice();
-        }
-
-        recipeButton.addEventListener("click", function () {
-            window.location.href = "recipeslist.html";
-        });
-
-        addIngredientButton.addEventListener("click", addIngredientGroup);
-
-        saveRecipeButton.addEventListener("click", function () {
-            const recipeName = recipeNameInput.value;
-            const selectedRecipeIngredients = [];
-            const ingredientGroups = ingredientContainer.querySelectorAll("div");
-
-            ingredientGroups.forEach(ingredientGroup => {
-                const inputName = ingredientGroup.querySelector('input[type="text"][placeholder="Enter name"]');
-                const selectUnit = ingredientGroup.querySelector("select");
-                const selectedUnit = selectUnit.value;
-
-                const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
-                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
-
-                const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
-
-                selectedRecipeIngredients.push({
-                    name: inputName.value,
-                    unit: selectedUnit,
-                    amount: amountInput.value,
-                    price: price
-                });
-            });
-
-            if (recipeName && selectedRecipeIngredients.length > 0) {
-                saveRecipe(recipeName, selectedRecipeIngredients);
-            }
-
-            console.log("Exiting or redirecting...");
-        });
-
-        function saveRecipe(recipeName, ingredients) {
-            const formData = new FormData();
-            formData.append('recipeName', recipeName);
-            formData.append('ingredients', JSON.stringify(ingredients));
-
-            fetch('DatabasePut.php', {
+            fetch('DatabaseUpdateRecipe.php', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.message);
-            })
-            .catch(error => {
-                console.error('Error saving recipe:', error.message);
-            });
-        }
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update recipe');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data.message);
+                    window.location.href = "recipeslist.html";
+                })
+                .catch(error => console.error('Error updating recipe:', error));
+        });
     </script>
 </body>
+
 </html>
+
+
+
+
+
+
+
+
 
 
 
