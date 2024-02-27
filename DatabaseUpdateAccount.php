@@ -4,7 +4,12 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $json_data = file_get_contents('php://input');
     $updated_details = json_decode($json_data, true);
-    
+
+    if ($updated_details === null) {
+        echo json_encode(array("error" => "Error decoding JSON data"));
+        exit;
+    }
+
     $servername = "proj-mysql.uopnet.plymouth.ac.uk";
     $username = "comp3000_dstephens";
     $password = "ZzuY937+";
@@ -18,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (isset($_SESSION['user_id'])) {
         $user_id = $_SESSION['user_id'];
+
         $forename = $conn->real_escape_string($updated_details['Forename']);
         $surname = $conn->real_escape_string($updated_details['Surname']);
         $dob = $conn->real_escape_string($updated_details['DOB']);
@@ -41,6 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(array("message" => "Method not allowed"));
 }
 ?>
+
+
 
 
 

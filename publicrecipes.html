@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,31 +23,16 @@
         <a href="account.html">Account</a>
     </nav>
 
-    <h1>Recipe Library</h1>
-    <button id="CreateRecipeButton">Create New Recipe</button>
+    <h1>Public Recipes</h1>
+    <input type="text" id="SearchInput" placeholder="Search Recipe">
+    <button id="SearchButton">Search</button>
     <div id="databaseList"></div>
 
     <script>
-        const CreateRecipeButton = document.getElementById("CreateRecipeButton");
-        CreateRecipeButton.addEventListener("click", function () {
-            window.location.href = "recipes.html";
-        });
-
-        function deleteRecipe(recipeID) {
-            fetch('DatabaseDelete.php?recipeID=' + recipeID, {
-                method: 'DELETE'
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to delete recipe');
-                    }
-                    fetchRecipes();
-                })
-                .catch(error => console.error('Error deleting recipe:', error));
-        }
+        
 
         function fetchRecipes() {
-            fetch('DatabaseGet.php')
+            fetch('DatabaseGetAllRecipe.php')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -74,7 +60,7 @@
                 recipeItem.innerHTML = `<p>${recipe.Recipe_Name}</p>`;
                 
                 const editButton = document.createElement('button');
-                editButton.textContent = 'Edit';
+                editButton.textContent = 'View';
                 
                 editButton.addEventListener("click", function () {
                     window.location.href = "editrecipe.html?recipeID=" + recipe.Recipe_ID;
@@ -83,10 +69,6 @@
                 
                 recipeItem.appendChild(editButton);
 
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.addEventListener('click', () => deleteRecipe(recipe.Recipe_ID));
-                recipeItem.appendChild(deleteButton);
                             
                 databaseList.appendChild(recipeItem);
             });
@@ -96,6 +78,7 @@
     </script>
 </body>
 </html>
+
 
 
 

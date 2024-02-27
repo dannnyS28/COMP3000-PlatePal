@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 if (isset($_GET['recipeID'])) {
     $recipeID = $_GET['recipeID'];
     
-    $recipeQuery = "SELECT Recipe_Name, GROUP_CONCAT(CONCAT(Ingredient_Name, ' ', Ingredient_Unit, ' ', Ingredient_Amount, ' ', Ingredient_Price) SEPARATOR ',') AS Ingredients_Details
+    $recipeQuery = "SELECT recipe_table.Recipe_Name, GROUP_CONCAT(CONCAT(ingredients_table.Ingredient_ID, ' ', ingredients_table.Ingredient_Name, ' ', ingredients_table.Ingredient_Unit, ' ', ingredients_table.Ingredient_Amount, ' ', ingredients_table.Ingredient_Price) SEPARATOR ',') AS Ingredients_Details
                     FROM recipe_table
                     INNER JOIN ingredients_table ON recipe_table.Recipe_ID = ingredients_table.Recipe_ID
                     WHERE recipe_table.Recipe_ID = ?
@@ -39,5 +39,7 @@ if (isset($_GET['recipeID'])) {
 
 $conn->close();
 ?>
+
+
 
 

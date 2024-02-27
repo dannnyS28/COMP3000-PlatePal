@@ -9,24 +9,23 @@ body {
 }
 
 header {
-    background-color: #333;
+    background-color: #0056b3;
     color: white;
     padding: 10px;
     text-align: center;
 }
 
 nav {
-    background-color: #555;
+    background-color: #1C3131;;
     overflow: hidden;
     text-align: center;
 }
 
 nav a {
-    float: left;
-    display: block;
+    display: inline-block; 
     color: white;
     text-align: center;
-    padding: 14px 16px;
+    padding: 15px 50px;
     text-decoration: none;
 }
 
@@ -35,33 +34,96 @@ nav a:hover {
     color: black;
 }
 
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+header {
+    background-color: #2F4F4F;
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+}
+
 h1 {
+    margin: 0;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 30px;
+}
+
+form {
+    max-width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"],
+input[type="password"],
+button {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 2px solid #ccc; 
+    border-radius: 4px;
+    
+}
+
+button {
+    background-color: #2F4F4F;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-width: 1px; 
+    width: 30%;
+
+}
+
+button:hover {
+    background-color: #1C3131;
+}
+
+p {
     text-align: center;
 }
-img {
-    display: block;
-    margin: 20px auto;
+
+button#SignUpButton {
+    background-color: #28a745;
 }
 
-.centered-image {
-    display: block;
-    margin: 20px auto;
+.button-container {
+    text-align: center;
 }
 
-/* Border and text container */
-.create-recipe-container {
-    border: 2px solid #333;
-    padding: 20px;
-    margin-top: 20px;
+.input-container {
+    text-align: center;
+    margin-bottom: 20px; 
 }
 
-.create-recipe-container p {
-    margin: 0;
-    font-size: 18px;
-    font-weight: bold;
+button#SignUpButton:hover {
+    background-color: #218838;
 }
 
-/* Add this to your Styles.css file */
+.fade-effect {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+@media screen and (max-width: 600px) {
+    form {
+        width: 90%;
+    }
+}
+
+
+
 @keyframes fadeInOut {
   0% {
     opacity: 1;
@@ -75,7 +137,7 @@ img {
 }
 
 .fade-effect {
-  animation: fadeInOut 1s linear infinite; /* Adjust timing as needed */
+  animation: fadeInOut 1s linear infinite; 
 }
 
 
