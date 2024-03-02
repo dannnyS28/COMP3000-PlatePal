@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Recipe</title>
+    <link rel="stylesheet" href="Styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Edit Recipe</h1>
+    </header>
+
+    <nav>
+        <a href="publicrecipes.html">Back</a>
+    </nav>
+
+    <form id="editRecipeForm">
+        <label for="recipeName">Recipe Name:</label><br>
+        <input type="text" id="recipeName" name="recipeName"><br>
+
+        <div id="ingredientDetailsContainer"></div>
+        <button type="submit">Add to library</button>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const recipeID = new URLSearchParams(window.location.search).get('recipeID');
+
+            fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('recipeName').value = data.Recipe_Name;
+
+                    const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
+
+                    ingredientDetailsContainer.innerHTML = '';
+
+                    const ingredientDetails = data.Ingredients_Details.split(',');
+                    ingredientDetails.forEach(ingredientDetail => {
+                        const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
+                        const div = document.createElement('div');
+
+                        const idInput = document.createElement('input');
+                        idInput.type = 'hidden';
+                        idInput.name = 'ingredientID[]';
+                        idInput.value = id;
+
+                        const nameLabel = document.createElement('label');
+                        nameLabel.textContent = 'Ingredient Name:';
+                        const nameInput = document.createElement('input');
+                        nameInput.type = 'text';
+                        nameInput.value = name;
+
+                        const unitLabel = document.createElement('label');
+                        unitLabel.textContent = 'Unit:';
+                        const unitSelect = document.createElement('select');
+                        const unitOptions = ["milligram", "gram", "kilogram", "milliliter", "litre", "teaspoon", "tablespoon", "cup", "piece"];
+                        unitOptions.forEach(option => {
+                            const optionElement = document.createElement('option');
+                            optionElement.value = option;
+                            optionElement.textContent = option;
+                            unitSelect.appendChild(optionElement);
+                        });
+                        unitSelect.value = unit;
+
+                        const amountLabel = document.createElement('label');
+                        amountLabel.textContent = 'Amount:';
+                        const amountInput = document.createElement('input');
+                        amountInput.type = 'text';
+                        amountInput.placeholder = 'Enter amount';
+                        amountInput.value = amount;
+
+                        const priceLabel = document.createElement('label');
+                        priceLabel.textContent = 'Price:';
+                        const priceInput = document.createElement('input');
+                        priceInput.type = 'text';
+                        priceInput.placeholder = 'Enter price';
+                        priceInput.value = price;
+
+                        div.appendChild(idInput);
+                        div.appendChild(nameLabel);
+                        div.appendChild(nameInput);
+                        div.appendChild(unitLabel);
+                        div.appendChild(unitSelect);
+                        div.appendChild(amountLabel);
+                        div.appendChild(amountInput);
+                        div.appendChild(priceLabel);
+                        div.appendChild(priceInput);
+
+                        ingredientDetailsContainer.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Error fetching recipe details:', error));
+        });
+
+        document.getElementById('editRecipeForm').addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const recipeID = new URLSearchParams(window.location.search).get('recipeID');
+            const recipeName = document.getElementById('recipeName').value;
+            const selectedRecipeIngredients = [];
+            const ingredientGroups = document.getElementById('ingredientDetailsContainer').querySelectorAll("div");
+
+            ingredientGroups.forEach(ingredientGroup => {
+                const inputID = ingredientGroup.querySelector('input[type="hidden"]');
+                const inputName = ingredientGroup.querySelector('input[type="text"]');
+                const selectUnit = ingredientGroup.querySelector("select");
+                const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
+                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+
+                if (inputID && inputName && selectUnit && amountInput && priceInput) {
+                    const ingredientID = inputID.value.trim();
+                    const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
+
+                    selectedRecipeIngredients.push({
+                        id: ingredientID,
+                        name: inputName.value.trim(),
+                        unit: selectUnit.value.trim(),
+                        amount: amountInput.value.trim(),
+                        price: price
+                    });
+                }
+            });
+
+            const formData = new FormData();
+            formData.append('recipeID', recipeID);
+            formData.append('recipeName', recipeName);
+            formData.append('ingredients', JSON.stringify(selectedRecipeIngredients));
+
+            saveRecipe(formData);
+        });
+
+        function saveRecipe(formData) {
+            fetch('DatabaseCloneRecipe.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.message);
+                })
+                .catch(error => console.error('Error saving recipe:', error));
+        }
+    </script>
+
+</body>
+
+</html>
