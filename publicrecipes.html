@@ -41,12 +41,12 @@
                 })
                 .then(data => {
                     displayRecipes(data);
-                    document.body.style.display = ''; 
+                    document.body.style.display = '';
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error.message);
                     document.getElementById('databaseList').innerHTML = 'No Recipes were found. You can create one using the button above!';
-                    document.body.style.display = ''; 
+                    document.body.style.display = '';
                 });
         }
 
@@ -58,23 +58,37 @@
                 const recipeItem = document.createElement('div');
                 recipeItem.classList.add('recipe-item');
                 recipeItem.innerHTML = `<p>${recipe.Recipe_Name}</p>`;
-                
+
                 const editButton = document.createElement('button');
                 editButton.textContent = 'View';
-                
+
                 editButton.addEventListener("click", function () {
                     window.location.href = "viewrecipe.html?recipeID=" + recipe.Recipe_ID;
                 });
 
-                
                 recipeItem.appendChild(editButton);
-
-                            
                 databaseList.appendChild(recipeItem);
             });
         }
 
+        function searchRecipes() {
+            const searchInput = document.getElementById('SearchInput').value.toLowerCase();
+            const allRecipes = document.querySelectorAll('.recipe-item');
+
+            allRecipes.forEach(recipe => {
+                const recipeName = recipe.querySelector('p').textContent.toLowerCase();
+                if (recipeName.includes(searchInput)) {
+                    recipe.style.display = 'block'; 
+                } else {
+                    recipe.style.display = 'none'; 
+                }
+            });
+        }
+
+        document.getElementById('SearchButton').addEventListener('click', searchRecipes);
+
         window.onload = fetchRecipes;
+
     </script>
 </body>
 </html>

@@ -14,10 +14,11 @@
     </header>
 
     <nav>
-        <a href="publicrecipes.html">Back</a>
+        <a href="recipeslist.html">Back</a>
     </nav>
 
     <form id="editRecipeForm">
+        
         
         <h1 id="recipeName" name="recipeName"></h1><br>
         
@@ -28,19 +29,17 @@
         
         <h2 for="recipeIngredients">Ingredients</h2><br>
         <div id="ingredientDetailsContainer"></div>
-
+        
         <h2 for="recipeInstructions">Instructions</h2><br>
         <div id="recipeInstructions"></div><br>
-        
-        
-        <button type="submit">Add to library</button>
     </form>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const recipeID = new URLSearchParams(window.location.search).get('recipeID');
 
-            fetchRecipe(recipeID)
+            fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+                .then(response => response.json())
                 .then(data => {
                     document.getElementById('recipeName').innerHTML = data.Recipe_Name;
                     document.getElementById('PrepTime').innerHTML = "Prep Time: " + data.Recipe_Prep_Time + " minutes";
@@ -50,14 +49,19 @@
                     document.getElementById('recipeInstructions').textContent = data.Recipe_Instructions;
 
                     const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
+
                     ingredientDetailsContainer.innerHTML = '';
 
                     const ingredientDetails = data.Ingredients_Details.split(',');
                     ingredientDetails.forEach(ingredientDetail => {
                         const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
 
+                        const formattedAmount = parseInt(amount);
+
+                        const formattedName = name.replace(/_/g, ' ');
+
                         const ingredientText = document.createElement('p');
-                        ingredientText.textContent = `${amount}${unit} ${name} (£${price} approx)`;
+                        ingredientText.textContent = `${formattedAmount}${unit} ${formattedName} (£${price} approx)`;
 
                         ingredientDetailsContainer.appendChild(ingredientText);
                     });
@@ -65,53 +69,12 @@
                 .catch(error => console.error('Error fetching recipe details:', error));
         });
 
-        function fetchRecipe(recipeID) {
-            return fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                });
-        }
-
-        document.getElementById('editRecipeForm').addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            const recipeID = new URLSearchParams(window.location.search).get('recipeID');
-            const recipeName = document.getElementById('recipeName').innerHTML;
-
-            const formData = new FormData();
-            formData.append('recipeID', recipeID);
-            formData.append('recipeName', recipeName);
-
-            saveRecipe(formData);
-        });
-
-        function saveRecipe(formData) {
-            fetch('DatabaseCloneRecipe.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data.message); 
-                window.location.href = "publicrecipes.html";
-            })
-            .catch(error => console.error('Error saving recipe:', error));
-        }
         
     </script>
+
+
 
 
 </body>
 
 </html>
-
-
-

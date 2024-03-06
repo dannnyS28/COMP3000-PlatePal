@@ -15,13 +15,44 @@ if ($conn->connect_error) {
 if (isset($_GET['recipeID'])) {
     $recipeID = $_GET['recipeID'];
     
-    $recipeQuery = "SELECT recipe_table.Recipe_Name, GROUP_CONCAT(CONCAT(ingredients_table.Ingredient_ID, ' ', ingredients_table.Ingredient_Name, ' ', ingredients_table.Ingredient_Unit, ' ', ingredients_table.Ingredient_Amount, ' ', ingredients_table.Ingredient_Price) SEPARATOR ',') AS Ingredients_Details
-                    FROM recipe_table
-                    INNER JOIN ingredients_table ON recipe_table.Recipe_ID = ingredients_table.Recipe_ID
-                    WHERE recipe_table.Recipe_ID = ?
-                    GROUP BY recipe_table.Recipe_ID";
+    $recipeQuery = "SELECT 
+                        rt.Recipe_Name, 
+                        rt.Recipe_Instructions, 
+                        rt.Recipe_Calories, 
+                        rt.Recipe_Prep_Time, 
+                        rt.Recipe_Cook_Time,
+                        rt.Recipe_Difficulty_Level,
+                        rt.Recipe_Public_Or_Private,  
+                        GROUP_CONCAT(CONCAT(it.Ingredient_ID, ' ', it.Ingredient_Name, ' ', it.Ingredient_Unit, ' ', it.Ingredient_Amount, ' ', it.Ingredient_Price) SEPARATOR ',') AS Ingredients_Details
+                    FROM 
+                        recipe_table rt
+                    INNER JOIN 
+                        ingredients_table it ON rt.Recipe_ID = it.Recipe_ID
+                    WHERE 
+                        rt.Recipe_ID = ?
+                    GROUP BY 
+                        rt.Recipe_ID
+                    UNION
+                    SELECT 
+                        lrt.Recipe_Name, 
+                        lrt.Recipe_Instructions, 
+                        lrt.Recipe_Calories, 
+                        lrt.Recipe_Prep_Time, 
+                        lrt.Recipe_Cook_Time,
+                        lrt.Recipe_Difficulty_Level,
+                        lrt.Recipe_Public_Or_Private,  
+                        GROUP_CONCAT(CONCAT(lit.Ingredient_ID, ' ', lit.Ingredient_Name, ' ', lit.Ingredient_Unit, ' ', lit.Ingredient_Amount, ' ', lit.Ingredient_Price) SEPARATOR ',') AS Ingredients_Details
+                    FROM 
+                        library_recipe_table lrt
+                    INNER JOIN 
+                        library_ingredients_table lit ON lrt.Recipe_ID = lit.Recipe_ID
+                    WHERE 
+                        lrt.Recipe_ID = ?
+                    GROUP BY 
+                        lrt.Recipe_ID";
+                    
     $recipeStatement = $conn->prepare($recipeQuery);
-    $recipeStatement->bind_param("i", $recipeID); 
+    $recipeStatement->bind_param("ii", $recipeID, $recipeID); 
     $recipeStatement->execute();
     
     $recipeResult = $recipeStatement->get_result();
@@ -39,6 +70,8 @@ if (isset($_GET['recipeID'])) {
 
 $conn->close();
 ?>
+
+
 
 
 

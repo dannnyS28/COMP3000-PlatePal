@@ -11,14 +11,50 @@
 
 <body>
   <h1>PlatePal Recipe Manager</h1>
-  <p>Enter a recipe name:</p>
-  <input type="text" id="recipeNameInput" placeholder="Recipe Name">
   <button id="recipeButton">Back</button>
   <button id="saveRecipeButton">Save Recipe</button>
-  <button id="addIngredientButton">Add Ingredient</button>
-  <div id="ingredientContainer"></div>
-  <div id="totalPriceContainer"></div>
-    <input type="text" id="recipeNameInput" placeholder="Recipe Instructions">
+    <h1>Recipe Info</h1>
+    <label for="recipeNameInput">Recipe Name:</label>
+    <input type="text" id="recipeNameInput" placeholder="Recipe Name"><br>
+
+    <label for="recipeInstructionsInput">Recipe Instructions:</label>
+    <textarea id="recipeInstructionsInput" name="recipeInstructions" placeholder="Recipe Instructions"></textarea><br>
+
+    <label for="recipeCaloriesInput">Calories:</label>
+    <input type="text" id="recipeCaloriesInput" placeholder="Calories"><br>
+
+    <label for="recipePrepInput">Time to Prep (Minutes):</label>
+    <input type="text" id="recipePrepInput" placeholder="Time to Prep"><br>
+
+    <label for="recipeCookInput">Time to Cook (Minutes):</label>
+    <input type="text" id="recipeCookInput" placeholder="Time to Cook"><br>
+
+    <label for="recipeDifficultyInput">Select Difficulty Level:</label>
+    <select id="recipeDifficultyInput" name="difficulty">
+        <option value="1">1 - Easy</option>
+        <option value="2">2 - Moderate</option>
+        <option value="3">3 - Intermediate</option>
+        <option value="4">4 - Difficult</option>
+        <option value="5">5 - Very Difficult</option>
+    </select><br>
+
+    <label for="publicCheckbox">Public:</label>
+    <input type="checkbox" id="publicCheckbox" name="publicCheckbox">
+
+    
+
+        <h1>Ingredients</h1>
+
+      <button id="addIngredientButton">Add Ingredient</button>
+      <div id="ingredientContainer"></div>
+      <div id="totalPriceContainer"></div>
+    
+        <h1>Pictures</h1>
+
+    
+
+
+
 
 
   <script>
@@ -26,6 +62,7 @@
         const saveRecipeButton = document.getElementById("saveRecipeButton");
         const addIngredientButton = document.getElementById("addIngredientButton");
         const recipeNameInput = document.getElementById("recipeNameInput");
+        const recipeInstructionsInput = document.getElementById("recipeInstructionsInput");
         const ingredientContainer = document.getElementById("ingredientContainer");
         const totalPriceContainer = document.getElementById("totalPriceContainer");
         const recipes = [];
@@ -55,7 +92,7 @@
             newInputName.placeholder = "Enter name";
 
             const newSelectUnit = document.createElement("select");
-            const units = ["milligram", "gram", "kilogram", "milliliter", "litre", "teaspoon", "tablespoon", "cup", "Peice"];
+            const units = ["mg", "g", "kg", "ml", "l", "teaspoon", "tablespoon", "cup", "Peice"];
             units.forEach(unit => {
                 const option = document.createElement("option");
                 option.value = unit;
@@ -100,6 +137,12 @@
 
         saveRecipeButton.addEventListener("click", function () {
             const recipeName = recipeNameInput.value;
+            const recipeInstructions = recipeInstructionsInput.value;
+            const calories = document.getElementById("recipeCaloriesInput").value;
+            const prepTime = document.getElementById("recipePrepInput").value;
+            const cookTime = document.getElementById("recipeCookInput").value;
+            const difficultyLevel = document.getElementById("recipeDifficultyInput").value;
+            const isPublic = document.getElementById("publicCheckbox").checked;
             const selectedRecipeIngredients = [];
             const ingredientGroups = ingredientContainer.querySelectorAll("div");
 
@@ -121,16 +164,26 @@
                 });
             });
 
-            if (recipeName && selectedRecipeIngredients.length > 0) {
-                saveRecipe(recipeName, selectedRecipeIngredients);
+            if (recipeName && recipeInstructions && calories && prepTime && cookTime && difficultyLevel && selectedRecipeIngredients.length > 0) {
+                saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, selectedRecipeIngredients);
             }
 
             console.log("Exiting or redirecting...");
         });
 
-        function saveRecipe(recipeName, ingredients) {
+            
+
+
+
+        function saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, ingredients) {
             const formData = new FormData();
             formData.append('recipeName', recipeName);
+            formData.append('recipeInstructions', recipeInstructions);
+            formData.append('calories', calories);
+            formData.append('prepTime', prepTime);
+            formData.append('cookTime', cookTime);
+            formData.append('difficultyLevel', difficultyLevel);
+            formData.append('isPublic', isPublic ? '1' : '0');
             formData.append('ingredients', JSON.stringify(ingredients));
 
             fetch('DatabasePut.php', {
@@ -146,6 +199,7 @@
                 console.error('Error saving recipe:', error.message);
             });
         }
+
     </script>
 </body>
 

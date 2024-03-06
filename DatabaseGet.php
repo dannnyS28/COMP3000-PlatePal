@@ -15,17 +15,27 @@ if ($conn->connect_error) {
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
 
-    $sql = "SELECT * FROM recipe_table WHERE user_id = $user_id 
-            UNION 
-            SELECT * FROM library_recipe_table WHERE user_id = $user_id";
-    $result = $conn->query($sql);
+    $data = array();
 
-    if ($result->num_rows > 0) {
-        $data = array();
-        while ($row = $result->fetch_assoc()) {
+    $sql_recipe = "SELECT * FROM recipe_table WHERE user_id = $user_id";
+    $result_recipe = $conn->query($sql_recipe);
+
+    if ($result_recipe->num_rows > 0) {
+        while ($row = $result_recipe->fetch_assoc()) {
             $data[] = $row;
         }
+    }
 
+    $sql_library = "SELECT * FROM library_recipe_table WHERE user_id = $user_id";
+    $result_library = $conn->query($sql_library);
+
+    if ($result_library->num_rows > 0) {
+        while ($row = $result_library->fetch_assoc()) {
+            $data[] = $row;
+        }
+    }
+
+    if (!empty($data)) {
         header('Content-Type: application/json');
         echo json_encode($data);
     } else {
@@ -39,6 +49,8 @@ if (isset($_SESSION['user_id'])) {
 
 $conn->close();
 ?>
+
+
 
 
 
