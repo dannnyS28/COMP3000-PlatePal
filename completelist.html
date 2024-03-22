@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selected Recipes - PlatePal</title>
+    <link rel="stylesheet" href="./Styles.css">
+</head>
+<body>
+    <header>
+        <h1>Selected Recipes</h1>
+    </header>
+    
+    <div id="selectedRecipesList"></div>    
+    <h1>Shopping List</h1><br>
+    <div id="ingredientDetailsContainer"></div>
+    <p id="finalPrice">Final Price: £0</p>
+
+    <button href="list.html">Back</button>
+    <button id="PrintButton">Print List</button>
+    <button id="SaveButton">Save List</button>
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchSelectedRecipes();
+        });
+
+        let finalPrice = 0;
+        
+        function fetchSelectedRecipes() {
+            const selectedRecipes = JSON.parse(localStorage.getItem('selectedRecipes') || '{}');
+            const recipeIDs = Object.keys(selectedRecipes);
+            if (recipeIDs.length > 0) {
+                fetchRecipeDetailsByID(recipeIDs, selectedRecipes);
+                fetchRecipeMultipleTimes(recipeIDs, selectedRecipes);
+            }
+        }
+
+        function fetchRecipeDetailsByID(recipeIDs, selectedRecipes) {
+            const selectedRecipesList = document.getElementById('selectedRecipesList');
+            selectedRecipesList.innerHTML = '';
+            recipeIDs.forEach(recipeID => {
+                fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const name = data.Recipe_Name; 
+                        const quantity = selectedRecipes[recipeID];
+                        const recipeItem = document.createElement('div');
+                        recipeItem.classList.add('selected-recipe-item');
+                        recipeItem.innerHTML = `
+                            <p>Recipe Name: ${name}</p>
+                            <p>Quantity: ${quantity}</p>
+                        `;
+                        selectedRecipesList.appendChild(recipeItem);
+
+                        const recipePrice = data.Price || 5; 
+                        finalPrice += quantity * recipePrice;
+                        document.getElementById("finalPrice").textContent = `Final Price: £${finalPrice.toFixed(2)}`;
+                    })
+                    .catch(error => console.error('Error fetching recipe details:', error));
+            });
+        }
+
+        document.getElementById("editSelectionButton").addEventListener("click", function () {
+            window.location.href = "list.html"; 
+        });
+        
+        function fetchRecipeMultipleTimes(recipeIDs, selectedRecipes) {
+            const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
+            ingredientDetailsContainer.innerHTML = '';
+
+            recipeIDs.forEach(recipeID => {
+                const quantity = selectedRecipes[recipeID];
+                for (let i = 0; i < quantity; i++) {
+                    fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const ingredientDetails = data.Ingredients_Details.split(',');
+                            ingredientDetails.forEach(ingredientDetail => {
+                                const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
+                                const ingredientText = document.createElement('p');
+                                ingredientText.textContent = `${amount}${unit} ${name}`;
+                                ingredientDetailsContainer.appendChild(ingredientText);
+                            });
+                        })
+                        .catch(error => console.error('Error fetching recipe details:', error));
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+

@@ -17,63 +17,89 @@
         <a href="publicrecipes.html">Back</a>
     </nav>
 
-    <form id="editRecipeForm">
-        
-        <h1 id="recipeName" name="recipeName"></h1><br>
-        
-        <div id="PrepTime"></div><br>
-        <div id="CookTime"></div><br>
-        <div id="Difficulty"></div><br>
-        <div id="Calories"></div><br>
-        
-        <h2 for="recipeIngredients">Ingredients</h2><br>
-        <div id="ingredientDetailsContainer"></div>
+    <div class="content-container"> 
+        <div class="recipe-details"> 
+            <form id="editRecipeForm">
+                <h1 id="recipeName" name="recipeName"></h1><br>
+                <div id="PrepTime"></div><br>
+                <div id="CookTime"></div><br>
+                <div id="Difficulty"></div><br>
+                <div id="Calories"></div><br>
+                
+                <h2 for="recipeIngredients">Ingredients</h2><br>
+                <div id="ingredientDetailsContainer"></div>
 
-        <h2 for="recipeInstructions">Instructions</h2><br>
-        <div id="recipeInstructions"></div><br>
-        
-        
-        <button type="submit">Add to library</button>
-    </form>
+                <h2 for="recipeInstructions">Instructions</h2><br>
+                <div id="recipeInstructions"></div><br>
+            </form>
+        </div>
+
+        <div class="recipe-image-container"> 
+            <img id="recipeImage" src="" alt="Recipe Picture" style="width:100%;max-width:600px;"><br>
+        </div>
+    </div>
+    <button id="cloneRecipeButton" type="button">Add to library</button>
+
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const recipeID = new URLSearchParams(window.location.search).get('recipeID');
+        const recipeID = new URLSearchParams(window.location.search).get('recipeID');
 
-            fetchRecipe(recipeID)
-                .then(data => {
-                    document.getElementById('recipeName').innerHTML = data.Recipe_Name;
-                    document.getElementById('PrepTime').innerHTML = "Prep Time: " + data.Recipe_Prep_Time + " minutes";
-                    document.getElementById('CookTime').innerHTML = "Cook Time: " + data.Recipe_Cook_Time + " minutes";
-                    document.getElementById('Difficulty').innerHTML = "Difficulty: " + data.Recipe_Difficulty_Level + "/5";
-                    document.getElementById('Calories').innerHTML = "Calories: " + data.Recipe_Calories + " Calories";
-                    document.getElementById('recipeInstructions').textContent = data.Recipe_Instructions;
+        fetchRecipe(recipeID)
+            .then(data => {
+                document.getElementById('recipeName').innerHTML = data.Recipe_Name;
+                document.getElementById('PrepTime').innerHTML = "Prep Time: " + data.Recipe_Prep_Time + " minutes";
+                document.getElementById('CookTime').innerHTML = "Cook Time: " + data.Recipe_Cook_Time + " minutes";
+                document.getElementById('Difficulty').innerHTML = "Difficulty: " + data.Recipe_Difficulty_Level + "/5";
+                document.getElementById('Calories').innerHTML = "Calories: " + data.Recipe_Calories + " Calories";
+                document.getElementById('recipeInstructions').textContent = data.Recipe_Instructions;
 
-                    const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
-                    ingredientDetailsContainer.innerHTML = '';
+                const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
+                ingredientDetailsContainer.innerHTML = '';
 
-                    const ingredientDetails = data.Ingredients_Details.split(',');
-                    ingredientDetails.forEach(ingredientDetail => {
-                        const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
+                const ingredientDetails = data.Ingredients_Details.split(',');
+                ingredientDetails.forEach(ingredientDetail => {
+                    let [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
 
-                        const ingredientText = document.createElement('p');
-                        ingredientText.textContent = `${amount}${unit} ${name} (£${price} approx)`;
+                    name = name.replace(/_/g, ' ');
 
-                        ingredientDetailsContainer.appendChild(ingredientText);
-                    });
-                })
-                .catch(error => console.error('Error fetching recipe details:', error));
-        });
+                    const ingredientText = document.createElement('p');
+                    ingredientText.textContent = `${amount}${unit} ${name} (£${price} approx)`;
 
-        function fetchRecipe(recipeID) {
-            return fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
+                    ingredientDetailsContainer.appendChild(ingredientText);
                 });
-        }
+
+                if (data.Recipe_Image) {
+                    document.getElementById('recipeImage').src = data.Recipe_Image;
+                    document.getElementById('recipeImage').alt = "Picture of " + data.Recipe_Name;
+                } else {
+                    document.getElementById('recipeImageContainer').style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error fetching recipe details:', error));
+    });
+
+    function fetchRecipe(recipeID) {
+        return fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            });
+    }
+        
+        document.getElementById('cloneRecipeButton').addEventListener("click", function (event) {
+            event.preventDefault(); 
+            const recipeID = new URLSearchParams(window.location.search).get('recipeID');
+            const recipeName = document.getElementById('recipeName').textContent;
+
+            const formData = new FormData();
+            formData.append('recipeID', recipeID);
+            formData.append('recipeName', recipeName);
+
+            saveRecipe(formData);
+        });
 
         document.getElementById('editRecipeForm').addEventListener("submit", function (event) {
             event.preventDefault();
@@ -102,6 +128,7 @@
             .then(data => {
                 console.log(data.message); 
                 window.location.href = "publicrecipes.html";
+
             })
             .catch(error => console.error('Error saving recipe:', error));
         }

@@ -4,84 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlatePal</title>
-    <link rel="stylesheet" href="Styles.css">
+    <link rel="stylesheet" href="./Styles.css">
 </head>
 <body>
-    <h1>PlatePal</h1>
-    <p>Add your saved recipes to a list and then complete it to make your smart list.</p>
+    <header>
+        <h1>PlatePal</h1>
+    </header>
+
     <button id="backButton">Back</button>
-    <button id="saveExitButton">Save List</button>
-    <button id="addItemButton">Add Item</button>
-    <button id="completeButton">Complete List</button>
-    <div id="ingredientContainer"></div>
-    <div id="priceContainer"></div>
+    <button id="completeListButton">Complete Recipe</button>
+    <p id="TotalPrice">Total Price: £0</p>
+    <div id="databaseList"></div>
+    
 
     <script>
-        const backButton = document.getElementById("backButton");
-        const saveExitButton = document.getElementById("saveExitButton");
-        const addItemButton = document.getElementById("addItemButton");
-        const ingredientContainer = document.getElementById("ingredientContainer");
-        const completeButton = document.getElementById("completeButton");
-        const priceContainer = document.getElementById("priceContainer");
-
-        function calculateTotalPrice() {
-            
-        }
-
-        function populateDropdown() {
-            const dropdown = document.createElement("select");
-            
-            
-            fetch('DatabaseGet.php')
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(recipe => {
-                        const option = document.createElement("option");
-                        option.value = recipe.Recipe_Name;
-                        option.text = recipe.Recipe_Name;
-                        dropdown.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error fetching recipe names:', error));
-            
-            return dropdown;
-        }
-        
-        backButton.addEventListener("click", function() {
+        document.getElementById("backButton").addEventListener("click", function () {
             window.location.href = "listdash.html";
         });
 
-        addItemButton.addEventListener("click", function() {
-            const ingredientGroup = document.createElement("div");
+        let totalPrice = 0;
+        const selectedRecipes = {};
 
-            const recipeDropdown = populateDropdown();
-
-            const newButtonCancel = document.createElement("input");
-            newButtonCancel.type = "button";
-            newButtonCancel.value = "Delete";
-
-            ingredientGroup.appendChild(recipeDropdown);
-            ingredientGroup.appendChild(newButtonCancel);
-            ingredientContainer.appendChild(ingredientGroup);
-            calculateTotalPrice();
+        document.getElementById("completeListButton").addEventListener("click", function () {
+            localStorage.setItem('selectedRecipes', JSON.stringify(selectedRecipes));
+            window.location.href = "completelist.html";
         });
 
-        completeButton.addEventListener("click", function() {
-            
-        });
+        function fetchRecipes() {
+            fetch('DatabaseGet.php')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    displayRecipes(data);
+                    document.body.style.display = 'block'; 
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
+                    document.getElementById('databaseList').innerHTML = 'No Recipes were found. You can create one using the button above!';
+                    document.body.style.display = 'block'; 
+                });
+        }
 
-        ingredientContainer.addEventListener("click", function(event) {
-            
-        });
+        function displayRecipes(recipes) {
+            const databaseList = document.getElementById('databaseList');
+            databaseList.innerHTML = '';
 
-        saveExitButton.addEventListener("click", function() {
-            const selectedRecipe = recipeDropdown.value;
-            console.log("Selected recipe:", selectedRecipe);
+            recipes.forEach(recipe => {
+                const recipeItem = document.createElement('div');
+                recipeItem.classList.add('recipe-item');
+                recipeItem.innerHTML = `
+                    <p>${recipe.Recipe_Name}</p>
+                    <p>${recipe.Recipe_Calories} Cal | ${recipe.Recipe_Difficulty_Level}/5 Difficulty</p>
+                    <p>£${recipe.Recipe_Price}</p>
+                    <div class="quantity-selector" data-recipe-id="${recipe.Recipe_ID}" data-recipe-price="${recipe.Recipe_Price}">
+                        <button class="decrease">-</button>
+                        <span class="quantity">0</span>
+                        <button class="increase">+</button>
+                    </div>
+                `;
+                setupQuantityButtons(recipeItem, recipe.Recipe_ID, recipe.Recipe_Price);
+                databaseList.appendChild(recipeItem);
+            });
+        }
 
-            console.log("Exiting or redirecting...");
-        });
+        function setupQuantityButtons(recipeItem, recipeId, recipePrice) {
+            const decreaseButton = recipeItem.querySelector('.decrease');
+            const increaseButton = recipeItem.querySelector('.increase');
+            const quantitySpan = recipeItem.querySelector('.quantity');
+
+            const updatePriceAndSelection = (quantity) => {
+                if (quantity > 0) {
+                    selectedRecipes[recipeId] = quantity;
+                } else {
+                    delete selectedRecipes[recipeId];
+                }
+                calculateTotalPrice();
+            };
+
+            decreaseButton.addEventListener('click', () => {
+                let quantity = parseInt(quantitySpan.textContent);
+                if (quantity > 0) {
+                    quantitySpan.textContent = --quantity;
+                    updatePriceAndSelection(quantity);
+                }
+            });
+
+            increaseButton.addEventListener('click', () => {
+                let quantity = parseInt(quantitySpan.textContent);
+                quantitySpan.textContent = ++quantity;
+                updatePriceAndSelection(quantity);
+            });
+        }
+
+        function calculateTotalPrice() {
+            totalPrice = 0;
+            for (const recipeId in selectedRecipes) {
+                const quantity = selectedRecipes[recipeId];
+                const recipePrice = document.querySelector(`.quantity-selector[data-recipe-id="${recipeId}"]`).getAttribute('data-recipe-price');
+                totalPrice += quantity * parseFloat(recipePrice);
+            }
+            document.getElementById("TotalPrice").textContent = `Total Price: £${totalPrice.toFixed(2)}`;
+        }
+
+        window.onload = fetchRecipes;
     </script>
 </body>
 </html>
+
+
 
 

@@ -22,7 +22,8 @@ if (isset($_GET['recipeID'])) {
                         rt.Recipe_Prep_Time, 
                         rt.Recipe_Cook_Time,
                         rt.Recipe_Difficulty_Level,
-                        rt.Recipe_Public_Or_Private,  
+                        rt.Recipe_Public_Or_Private,
+                        rt.Recipe_Image,
                         GROUP_CONCAT(CONCAT(it.Ingredient_ID, ' ', it.Ingredient_Name, ' ', it.Ingredient_Unit, ' ', it.Ingredient_Amount, ' ', it.Ingredient_Price) SEPARATOR ',') AS Ingredients_Details
                     FROM 
                         recipe_table rt
@@ -40,7 +41,8 @@ if (isset($_GET['recipeID'])) {
                         lrt.Recipe_Prep_Time, 
                         lrt.Recipe_Cook_Time,
                         lrt.Recipe_Difficulty_Level,
-                        lrt.Recipe_Public_Or_Private,  
+                        lrt.Recipe_Public_Or_Private,
+                        lrt.Recipe_Image,
                         GROUP_CONCAT(CONCAT(lit.Ingredient_ID, ' ', lit.Ingredient_Name, ' ', lit.Ingredient_Unit, ' ', lit.Ingredient_Amount, ' ', lit.Ingredient_Price) SEPARATOR ',') AS Ingredients_Details
                     FROM 
                         library_recipe_table lrt
@@ -60,6 +62,10 @@ if (isset($_GET['recipeID'])) {
     if ($recipeResult->num_rows > 0) {
         $recipeDetails = $recipeResult->fetch_assoc();
         
+        if (!empty($recipeDetails['Recipe_Image'])) {
+            $recipeDetails['Recipe_Image'] = '' . $recipeDetails['Recipe_Image'];
+        }
+
         echo json_encode($recipeDetails);
     } else {
         echo json_encode(array('error' => 'Recipe not found'));
@@ -70,6 +76,7 @@ if (isset($_GET['recipeID'])) {
 
 $conn->close();
 ?>
+
 
 
 

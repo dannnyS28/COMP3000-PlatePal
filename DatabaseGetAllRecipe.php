@@ -12,7 +12,7 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$sql = "SELECT * FROM recipe_table";
+$sql = "SELECT * FROM recipe_table WHERE Recipe_Public_Or_Private = '1'";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
@@ -25,7 +25,7 @@ if ($result->num_rows > 0) {
     echo json_encode($data);
 } else {
     header('Content-Type: application/json');
-    echo json_encode(array('message' => 'No recipes found'));
+    echo json_encode(array('message' => 'No public recipes found'));
 }
 
 $conn->close();

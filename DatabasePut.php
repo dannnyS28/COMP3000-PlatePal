@@ -8,8 +8,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $prepTime = $_POST['prepTime'];
     $cookTime = $_POST['cookTime'];
     $difficultyLevel = $_POST['difficultyLevel'];
-    $isPublic = $_POST['isPublic'] === '1' ? true : false;
+    $isPublic = $_POST['isPublic'];
+    $totalPrice = $_POST['totalPrice'];
     $ingredients = json_decode($_POST['ingredients'], true);
+    $cloned = 0;
 
     if (isset($_SESSION['user_id'])) {
         $userId = $_SESSION['user_id'];
@@ -27,18 +29,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $recipeInstructions = $conn->real_escape_string($recipeInstructions);
 
-        $sql_recipe = "INSERT INTO recipe_table (User_ID, Recipe_Name, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level, Recipe_Public_Or_Private) VALUES ('$userId', '$recipeName', '$recipeInstructions', '$calories', '$prepTime', '$cookTime', '$difficultyLevel', '$isPublic')";
+        $sql_recipe = "INSERT INTO recipe_table (User_ID, Recipe_Name, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level, Recipe_Public_Or_Private, Recipe_Price, Recipe_Cloned) VALUES ('$userId', '$recipeName', '$recipeInstructions', '$calories', '$prepTime', '$cookTime', '$difficultyLevel', '$isPublic', '$totalPrice', '$cloned')";
         if ($conn->query($sql_recipe) === TRUE) {
             $recipeId = $conn->insert_id;
 
             foreach ($ingredients as $ingredient) {
-                $ingredientName = str_replace('_', ' ', $ingredient['name']);
+                $ingredientName = $ingredient['name'];
                 $unit = $ingredient['unit'];
                 $amount = isset($ingredient['amount']) ? $ingredient['amount'] : 0;
                 $price = $ingredient['price'];
 
                 $sql_ingredient = "INSERT INTO ingredients_table (Recipe_ID, User_ID, Ingredient_Name, Ingredient_Unit, Ingredient_Amount, Ingredient_Price) VALUES ('$recipeId', '$userId', '$ingredientName', '$unit', '$amount', '$price')";
                 $conn->query($sql_ingredient);
+            }
+
+            if (isset($_FILES['recipePicture']) && $_FILES['recipePicture']['error'] == 0) {
+                $target_dir = "uploads/";
+                $target_file = $target_dir . basename($_FILES["recipePicture"]["name"]);
+                if (move_uploaded_file($_FILES["recipePicture"]["tmp_name"], $target_file)) {
+                    $sql_picture = "UPDATE recipe_table SET recipe_image = '$target_file' WHERE Recipe_ID = '$recipeId'";
+                    $conn->query($sql_picture);
+                }
             }
 
             echo json_encode(array('message' => 'Recipe saved successfully.'));
@@ -54,4 +65,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(array('message' => 'Invalid request method.'));
 }
 ?>
+
 

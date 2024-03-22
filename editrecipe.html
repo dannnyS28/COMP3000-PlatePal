@@ -52,29 +52,31 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const recipeID = new URLSearchParams(window.location.search).get('recipeID');
+    const recipeID = new URLSearchParams(window.location.search).get('recipeID');
 
-        fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('recipeNameInput').value = data.Recipe_Name;
-                document.getElementById('recipeInstructionsInput').value = data.Recipe_Instructions;
-                document.getElementById('recipeCaloriesInput').value = data.Recipe_Calories;
-                document.getElementById('recipePrepInput').value = data.Recipe_Prep_Time;
-                document.getElementById('recipeCookInput').value = data.Recipe_Cook_Time;
-                document.getElementById('recipeDifficultyInput').value = data.Recipe_Difficulty_Level;
-                document.getElementById('publicCheckbox').checked = data.Recipe_Public_Private === '1';
+    fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Recipe_Public_Or_Private:', data.Recipe_Public_Or_Private);
 
-                const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
-                ingredientDetailsContainer.innerHTML = '';
+            document.getElementById('recipeNameInput').value = data.Recipe_Name;
+            document.getElementById('recipeInstructionsInput').value = data.Recipe_Instructions;
+            document.getElementById('recipeCaloriesInput').value = data.Recipe_Calories;
+            document.getElementById('recipePrepInput').value = data.Recipe_Prep_Time;
+            document.getElementById('recipeCookInput').value = data.Recipe_Cook_Time;
+            document.getElementById('recipeDifficultyInput').value = data.Recipe_Difficulty_Level;
+            document.getElementById('publicCheckbox').checked = data.Recipe_Public_Or_Private;
 
-                const ingredientDetails = data.Ingredients_Details.split(',');
-                ingredientDetails.forEach(ingredientDetail => {
-                    const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
-                    addIngredientRow(id, name, unit, amount, price);
-                });
-            })
-            .catch(error => console.error('Error fetching recipe details:', error));
+            const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
+            ingredientDetailsContainer.innerHTML = '';
+
+            const ingredientDetails = data.Ingredients_Details.split(',');
+            ingredientDetails.forEach(ingredientDetail => {
+                const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
+                addIngredientRow(id, name, unit, amount, price);
+            });
+        })
+        .catch(error => console.error('Error fetching recipe details:', error));
 
         document.getElementById('addIngredientButton').addEventListener('click', function () {
             addIngredientRow('', '', '', '', '');
@@ -89,7 +91,7 @@
             const recipePrep = document.getElementById('recipePrepInput').value;
             const recipeCook = document.getElementById('recipeCookInput').value;
             const recipeDifficulty = document.getElementById('recipeDifficultyInput').value;
-            const isPublic = document.getElementById('publicCheckbox').checked ? '1' : '0';
+            const isPublic = document.getElementById('publicCheckbox').checked;
 
             const selectedRecipeIngredients = [];
             const ingredientGroups = document.getElementById('ingredientDetailsContainer').querySelectorAll("div");
@@ -123,7 +125,7 @@
             formData.append('recipePrep', recipePrep);
             formData.append('recipeCook', recipeCook);
             formData.append('recipeDifficulty', recipeDifficulty);
-            formData.append('isPublic', isPublic);
+            formData.append('isPublic', isPublic ? '1' : '0');
             formData.append('ingredients', JSON.stringify(selectedRecipeIngredients));
 
             saveRecipe(formData);
@@ -198,6 +200,7 @@
                 });
         }
     });
+
 </script>
 
 

@@ -17,62 +17,76 @@
         <a href="recipeslist.html">Back</a>
     </nav>
 
-    <form id="editRecipeForm">
-        
-        
-        <h1 id="recipeName" name="recipeName"></h1><br>
-        
-        <div id="PrepTime"></div><br>
-        <div id="CookTime"></div><br>
-        <div id="Difficulty"></div><br>
-        <div id="Calories"></div><br>
-        
-        <h2 for="recipeIngredients">Ingredients</h2><br>
-        <div id="ingredientDetailsContainer"></div>
-        
-        <h2 for="recipeInstructions">Instructions</h2><br>
-        <div id="recipeInstructions"></div><br>
-    </form>
+    <div class="content-container"> 
+        <div class="recipe-details"> 
+            <form id="editRecipeForm">
+                <h1 id="recipeName" name="recipeName"></h1><br>
+                <div id="PrepTime"></div><br>
+                <div id="CookTime"></div><br>
+                <div id="Difficulty"></div><br>
+                <div id="Calories"></div><br>
+                
+                <h2 for="recipeIngredients">Ingredients</h2><br>
+                <div id="ingredientDetailsContainer"></div>
+
+                <h2 for="recipeInstructions">Instructions</h2><br>
+                <div id="recipeInstructions"></div><br>
+            </form>
+        </div>
+
+        <div class="recipe-image-container"> 
+            <img id="recipeImage" src="" alt="Recipe Picture" style="width:100%;max-width:600px;"><br>
+        </div>
+    </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const recipeID = new URLSearchParams(window.location.search).get('recipeID');
+    document.addEventListener("DOMContentLoaded", function () {
+        const recipeID = new URLSearchParams(window.location.search).get('recipeID');
 
-            fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById('recipeName').innerHTML = data.Recipe_Name;
-                    document.getElementById('PrepTime').innerHTML = "Prep Time: " + data.Recipe_Prep_Time + " minutes";
-                    document.getElementById('CookTime').innerHTML = "Cook Time: " + data.Recipe_Cook_Time + " minutes";
-                    document.getElementById('Difficulty').innerHTML = "Difficulty: " + data.Recipe_Difficulty_Level + "/5";
-                    document.getElementById('Calories').innerHTML = "Calories: " + data.Recipe_Calories + " Calories";
-                    document.getElementById('recipeInstructions').textContent = data.Recipe_Instructions;
+        fetchRecipe(recipeID)
+            .then(data => {
+                document.getElementById('recipeName').innerHTML = data.Recipe_Name;
+                document.getElementById('PrepTime').innerHTML = "Prep Time: " + data.Recipe_Prep_Time + " minutes";
+                document.getElementById('CookTime').innerHTML = "Cook Time: " + data.Recipe_Cook_Time + " minutes";
+                document.getElementById('Difficulty').innerHTML = "Difficulty: " + data.Recipe_Difficulty_Level + "/5";
+                document.getElementById('Calories').innerHTML = "Calories: " + data.Recipe_Calories + " Calories";
+                document.getElementById('recipeInstructions').textContent = data.Recipe_Instructions;
 
-                    const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
+                const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
+                ingredientDetailsContainer.innerHTML = '';
 
-                    ingredientDetailsContainer.innerHTML = '';
+                const ingredientDetails = data.Ingredients_Details.split(',');
+                ingredientDetails.forEach(ingredientDetail => {
+                    let [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
 
-                    const ingredientDetails = data.Ingredients_Details.split(',');
-                    ingredientDetails.forEach(ingredientDetail => {
-                        const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
+                    name = name.replace(/_/g, ' ');
 
-                        const formattedAmount = parseInt(amount);
+                    const ingredientText = document.createElement('p');
+                    ingredientText.textContent = `${amount}${unit} ${name} (£${price} approx)`;
 
-                        const formattedName = name.replace(/_/g, ' ');
+                    ingredientDetailsContainer.appendChild(ingredientText);
+                });
 
-                        const ingredientText = document.createElement('p');
-                        ingredientText.textContent = `${formattedAmount}${unit} ${formattedName} (£${price} approx)`;
+                if (data.Recipe_Image) {
+                    document.getElementById('recipeImage').src = data.Recipe_Image;
+                    document.getElementById('recipeImage').alt = "Picture of " + data.Recipe_Name;
+                } else {
+                    document.getElementById('recipeImageContainer').style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error fetching recipe details:', error));
+    });
 
-                        ingredientDetailsContainer.appendChild(ingredientText);
-                    });
-                })
-                .catch(error => console.error('Error fetching recipe details:', error));
-        });
-
-        
-    </script>
-
-
+    function fetchRecipe(recipeID) {
+        return fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            });
+    }
+</script>
 
 
 </body>

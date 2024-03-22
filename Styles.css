@@ -133,4 +133,29 @@ button#SignUpButton:hover {
   animation: fadeInOut 1s linear infinite; 
 }
 
+#selectedRecipesList {
+    display: none;
+}
+
+
+.content-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.recipe-details {
+    flex: 1;
+    margin-top: 20px;
+    padding-right: 20px;
+}
+
+.recipe-image-container {
+    flex: 1;
+    max-width: 600px;
+    margin-top: 20px;
+    margin-right: 20px;
+}
+
 

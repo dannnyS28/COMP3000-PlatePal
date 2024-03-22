@@ -19,7 +19,6 @@
         <a href="recipeslist.html">Recipe Library</a>
         <a href="publicrecipes.html">Public Recipes</a>
         <a href="listdash.html">Smart List</a>
-        <a href="activity.html">Activity</a>
         <a href="account.html">Account</a>
     </nav>
 
@@ -29,8 +28,6 @@
     <div id="databaseList"></div>
 
     <script>
-        
-
         function fetchRecipes() {
             fetch('DatabaseGetAllRecipe.php')
                 .then(response => {
@@ -45,7 +42,7 @@
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error.message);
-                    document.getElementById('databaseList').innerHTML = 'No Recipes were found. You can create one using the button above!';
+                    document.getElementById('databaseList').innerHTML = 'No Recipes were found. You can create one on the library tab!';
                     document.body.style.display = '';
                 });
         }
@@ -57,7 +54,7 @@
             recipes.forEach(recipe => {
                 const recipeItem = document.createElement('div');
                 recipeItem.classList.add('recipe-item');
-                recipeItem.innerHTML = `<p>${recipe.Recipe_Name}</p>`;
+                recipeItem.innerHTML = `<p>${recipe.Recipe_Name}</p><p>${recipe.Recipe_Calories} Cal | ${recipe.Recipe_Difficulty_Level}/5 Difficulty | £${recipe.Recipe_Price}</p>`;
 
                 const editButton = document.createElement('button');
                 editButton.textContent = 'View';

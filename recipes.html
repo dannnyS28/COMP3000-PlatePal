@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,197 +12,201 @@
   <h1>PlatePal Recipe Manager</h1>
   <button id="recipeButton">Back</button>
   <button id="saveRecipeButton">Save Recipe</button>
-    <h1>Recipe Info</h1>
-    <label for="recipeNameInput">Recipe Name:</label>
-    <input type="text" id="recipeNameInput" placeholder="Recipe Name"><br>
+  <h1>Recipe Info</h1>
+  <label for="recipeNameInput">Recipe Name:</label>
+  <input type="text" id="recipeNameInput" placeholder="Recipe Name"><br>
 
-    <label for="recipeInstructionsInput">Recipe Instructions:</label>
-    <textarea id="recipeInstructionsInput" name="recipeInstructions" placeholder="Recipe Instructions"></textarea><br>
+  <label for="recipeCaloriesInput">Calories:</label>
+  <input type="text" id="recipeCaloriesInput" placeholder="Calories"><br>
 
-    <label for="recipeCaloriesInput">Calories:</label>
-    <input type="text" id="recipeCaloriesInput" placeholder="Calories"><br>
+  <label for="recipePrepInput">Time to Prep (Minutes):</label>
+  <input type="text" id="recipePrepInput" placeholder="Time to Prep"><br>
 
-    <label for="recipePrepInput">Time to Prep (Minutes):</label>
-    <input type="text" id="recipePrepInput" placeholder="Time to Prep"><br>
+  <label for="recipeCookInput">Time to Cook (Minutes):</label>
+  <input type="text" id="recipeCookInput" placeholder="Time to Cook"><br>
 
-    <label for="recipeCookInput">Time to Cook (Minutes):</label>
-    <input type="text" id="recipeCookInput" placeholder="Time to Cook"><br>
+  <label for="recipeDifficultyInput">Select Difficulty Level:</label>
+  <select id="recipeDifficultyInput" name="difficulty">
+    <option value="1">1 - Easy</option>
+    <option value="2">2 - Moderate</option>
+    <option value="3">3 - Intermediate</option>
+    <option value="4">4 - Difficult</option>
+    <option value="5">5 - Very Difficult</option>
+  </select><br>
 
-    <label for="recipeDifficultyInput">Select Difficulty Level:</label>
-    <select id="recipeDifficultyInput" name="difficulty">
-        <option value="1">1 - Easy</option>
-        <option value="2">2 - Moderate</option>
-        <option value="3">3 - Intermediate</option>
-        <option value="4">4 - Difficult</option>
-        <option value="5">5 - Very Difficult</option>
-    </select><br>
+  <label for="publicCheckbox">Public:</label>
+  <input type="checkbox" id="publicCheckbox" name="publicCheckbox">
 
-    <label for="publicCheckbox">Public:</label>
-    <input type="checkbox" id="publicCheckbox" name="publicCheckbox">
+  <h1>Ingredients</h1>
 
-    
-
-        <h1>Ingredients</h1>
-
-      <button id="addIngredientButton">Add Ingredient</button>
-      <div id="ingredientContainer"></div>
-      <div id="totalPriceContainer"></div>
-    
-        <h1>Pictures</h1>
-
-    
-
-
-
-
+  <button id="addIngredientButton">Add Ingredient</button>
+  <div id="ingredientContainer"></div>
+  <div id="totalPriceContainer"></div>
+  <h1>Instructions</h1>
+  <textarea id="recipeInstructionsInput" name="recipeInstructions" placeholder="Recipe Instructions"></textarea><br>
+  <h1>Pictures</h1>
+  <label for="recipePictureInput">Recipe Picture:</label>
+  <input type="file" id="recipePictureInput" name="recipePicture">
 
   <script>
-        const recipeButton = document.getElementById("recipeButton");
-        const saveRecipeButton = document.getElementById("saveRecipeButton");
-        const addIngredientButton = document.getElementById("addIngredientButton");
-        const recipeNameInput = document.getElementById("recipeNameInput");
-        const recipeInstructionsInput = document.getElementById("recipeInstructionsInput");
-        const ingredientContainer = document.getElementById("ingredientContainer");
-        const totalPriceContainer = document.getElementById("totalPriceContainer");
-        const recipes = [];
+    const recipeButton = document.getElementById("recipeButton");
+    const saveRecipeButton = document.getElementById("saveRecipeButton");
+    const addIngredientButton = document.getElementById("addIngredientButton");
+    const recipeNameInput = document.getElementById("recipeNameInput");
+    const recipeInstructionsInput = document.getElementById("recipeInstructionsInput");
+    const ingredientContainer = document.getElementById("ingredientContainer");
+    const totalPriceContainer = document.getElementById("totalPriceContainer");
+    const recipes = [];
 
-        function calculateTotalPrice() {
-            const ingredientGroups = ingredientContainer.querySelectorAll("div");
-            let totalPrice = 0;
+    function calculateTotalPrice() {
+      const ingredientGroups = ingredientContainer.querySelectorAll("div");
+      let totalPrice = 0;
 
-            ingredientGroups.forEach(ingredientGroup => {
-                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
-                const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
-                totalPrice += price;
-            });
+      ingredientGroups.forEach(ingredientGroup => {
+        const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+        const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
+        totalPrice += price;
+      });
 
-            const totalPriceDisplay = document.createElement("p");
-            totalPriceDisplay.textContent = `Total Price: £${totalPrice.toFixed(2)}`;
+      const totalPriceDisplay = document.createElement("p");
+      totalPriceDisplay.textContent = `Total Price: £${totalPrice.toFixed(2)}`;
 
-            totalPriceContainer.innerHTML = "";
-            totalPriceContainer.appendChild(totalPriceDisplay);
-        }
+      totalPriceContainer.innerHTML = "";
+      totalPriceContainer.appendChild(totalPriceDisplay);
 
-        function addIngredientGroup() {
-            const ingredientGroup = document.createElement("div");
+      return totalPrice;
+    }
 
-            const newInputName = document.createElement("input");
-            newInputName.type = "text";
-            newInputName.placeholder = "Enter name";
+    function addIngredientGroup() {
+      const ingredientGroup = document.createElement("div");
 
-            const newSelectUnit = document.createElement("select");
-            const units = ["mg", "g", "kg", "ml", "l", "teaspoon", "tablespoon", "cup", "Peice"];
-            units.forEach(unit => {
-                const option = document.createElement("option");
-                option.value = unit;
-                option.text = unit;
-                newSelectUnit.appendChild(option);
-            });
+      const newInputName = document.createElement("input");
+      newInputName.type = "text";
+      newInputName.placeholder = "Enter name";
 
-            const newInputAmount = document.createElement("input");
-            newInputAmount.type = "text";
-            newInputAmount.placeholder = "Enter amount";
+      const newSelectUnit = document.createElement("select");
+      const units = ["mg", "g", "kg", "ml", "l", "teaspoon", "tablespoon", "cup", "Piece"];
+      units.forEach(unit => {
+        const option = document.createElement("option");
+        option.value = unit;
+        option.text = unit;
+        newSelectUnit.appendChild(option);
+      });
 
-            const newInputPrice = document.createElement("input");
-            newInputPrice.type = "text";
-            newInputPrice.placeholder = "Enter price";
+      const newInputAmount = document.createElement("input");
+      newInputAmount.type = "text";
+      newInputAmount.placeholder = "Enter amount";
 
-            newInputPrice.addEventListener("input", function () {
-                newInputPrice.value = `£${newInputPrice.value.replace(/[^0-9.]/g, '')}`;
-                calculateTotalPrice();
-            });
+      const newInputPrice = document.createElement("input");
+      newInputPrice.type = "text";
+      newInputPrice.placeholder = "Enter price";
 
-            const deleteButton = document.createElement("button");
-            deleteButton.textContent = "Delete";
-            deleteButton.addEventListener("click", function () {
-                ingredientContainer.removeChild(ingredientGroup);
-                calculateTotalPrice();
-            });
+      newInputPrice.addEventListener("input", function () {
+        newInputPrice.value = `£${newInputPrice.value.replace(/[^0-9.]/g, '')}`;
+        calculateTotalPrice();
+      });
 
-            ingredientGroup.appendChild(newInputName);
-            ingredientGroup.appendChild(newSelectUnit);
-            ingredientGroup.appendChild(newInputAmount);
-            ingredientGroup.appendChild(newInputPrice);
-            ingredientGroup.appendChild(deleteButton);
-            ingredientContainer.appendChild(ingredientGroup);
-            calculateTotalPrice();
-        }
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", function () {
+        ingredientContainer.removeChild(ingredientGroup);
+        calculateTotalPrice();
+      });
 
-        recipeButton.addEventListener("click", function () {
-            window.location.href = "recipeslist.html";
+      ingredientGroup.appendChild(newInputName);
+      ingredientGroup.appendChild(newSelectUnit);
+      ingredientGroup.appendChild(newInputAmount);
+      ingredientGroup.appendChild(newInputPrice);
+      ingredientGroup.appendChild(deleteButton);
+      ingredientContainer.appendChild(ingredientGroup);
+      calculateTotalPrice();
+    }
+      
+    
+
+    recipeButton.addEventListener("click", function () {
+      window.location.href = "recipeslist.html";
+    });
+
+    addIngredientButton.addEventListener("click", addIngredientGroup);
+
+    saveRecipeButton.addEventListener("click", function () {
+      const recipeName = recipeNameInput.value;
+      const recipeInstructions = recipeInstructionsInput.value;
+      const calories = document.getElementById("recipeCaloriesInput").value;
+      const prepTime = document.getElementById("recipePrepInput").value;
+      const cookTime = document.getElementById("recipeCookInput").value;
+      const difficultyLevel = document.getElementById("recipeDifficultyInput").value;
+      const isPublic = document.getElementById("publicCheckbox").checked ? 1 : 0;
+      const selectedRecipeIngredients = [];
+      const ingredientGroups = ingredientContainer.querySelectorAll("div");
+        
+        
+
+        
+
+      ingredientGroups.forEach(ingredientGroup => {
+        const inputName = ingredientGroup.querySelector('input[type="text"][placeholder="Enter name"]');
+        const selectUnit = ingredientGroup.querySelector("select");
+        const selectedUnit = selectUnit.value;
+
+        const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
+        const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+
+        const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
+        const ingredientNameFormatted = inputName.value.replace(/\s+/g, '_');
+
+
+        selectedRecipeIngredients.push({
+          name: ingredientNameFormatted,
+          unit: selectedUnit,
+          amount: amountInput.value,
+          price: price
         });
+      });
 
-        addIngredientButton.addEventListener("click", addIngredientGroup);
+      if (recipeName && recipeInstructions && calories && prepTime && cookTime && difficultyLevel && selectedRecipeIngredients.length > 0) {
+        saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, selectedRecipeIngredients);
+      }
+    });
 
-        saveRecipeButton.addEventListener("click", function () {
-            const recipeName = recipeNameInput.value;
-            const recipeInstructions = recipeInstructionsInput.value;
-            const calories = document.getElementById("recipeCaloriesInput").value;
-            const prepTime = document.getElementById("recipePrepInput").value;
-            const cookTime = document.getElementById("recipeCookInput").value;
-            const difficultyLevel = document.getElementById("recipeDifficultyInput").value;
-            const isPublic = document.getElementById("publicCheckbox").checked;
-            const selectedRecipeIngredients = [];
-            const ingredientGroups = ingredientContainer.querySelectorAll("div");
+    function saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, ingredients) {
+      const totalPrice = calculateTotalPrice();
+      const formData = new FormData();
+      formData.append('recipeName', recipeName);
+      formData.append('recipeInstructions', recipeInstructions);
+      formData.append('calories', calories);
+      formData.append('prepTime', prepTime);
+      formData.append('cookTime', cookTime);
+      formData.append('difficultyLevel', difficultyLevel);
+      formData.append('isPublic', isPublic ? '1' : '0');
+      formData.append('totalPrice', totalPrice);
+      formData.append('ingredients', JSON.stringify(ingredients));
 
-            ingredientGroups.forEach(ingredientGroup => {
-                const inputName = ingredientGroup.querySelector('input[type="text"][placeholder="Enter name"]');
-                const selectUnit = ingredientGroup.querySelector("select");
-                const selectedUnit = selectUnit.value;
+      const pictureInput = document.getElementById('recipePictureInput');
+      if(pictureInput.files[0]) { 
+        formData.append('recipePicture', pictureInput.files[0]);
+      }
 
-                const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
-                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+      fetch('DatabasePut.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data.message);
+        window.location.href = "recipeslist.html";
+      })
+      .catch(error => {
+        console.error('Error saving recipe:', error.message);
+      });
+    }
 
-                const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
-
-                selectedRecipeIngredients.push({
-                    name: inputName.value,
-                    unit: selectedUnit,
-                    amount: amountInput.value,
-                    price: price
-                });
-            });
-
-            if (recipeName && recipeInstructions && calories && prepTime && cookTime && difficultyLevel && selectedRecipeIngredients.length > 0) {
-                saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, selectedRecipeIngredients);
-            }
-
-            console.log("Exiting or redirecting...");
-        });
-
-            
-
-
-
-        function saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, ingredients) {
-            const formData = new FormData();
-            formData.append('recipeName', recipeName);
-            formData.append('recipeInstructions', recipeInstructions);
-            formData.append('calories', calories);
-            formData.append('prepTime', prepTime);
-            formData.append('cookTime', cookTime);
-            formData.append('difficultyLevel', difficultyLevel);
-            formData.append('isPublic', isPublic ? '1' : '0');
-            formData.append('ingredients', JSON.stringify(ingredients));
-
-            fetch('DatabasePut.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data.message);
-                window.location.href = "recipeslist.html";
-            })
-            .catch(error => {
-                console.error('Error saving recipe:', error.message);
-            });
-        }
-
-    </script>
+  </script>
 </body>
 
 </html>
+
 
 
 

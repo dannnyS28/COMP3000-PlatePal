@@ -3,6 +3,8 @@ session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $recipeId = $_POST['recipeID'];
+    $cloned = 1;  
+    $public = 0;
 
     if (isset($_SESSION['user_id'])) {
         $userId = $_SESSION['user_id'];
@@ -21,17 +23,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
 
         try {
-            $sql_select_recipe = "SELECT Recipe_Name, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level FROM recipe_table WHERE Recipe_ID = ?";
+            $sql_select_recipe = "SELECT Recipe_Name, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level, Recipe_Price FROM recipe_table WHERE Recipe_ID = ?";
             $stmt_select_recipe = $conn->prepare($sql_select_recipe);
             $stmt_select_recipe->bind_param("i", $recipeId);
             $stmt_select_recipe->execute();
-            $stmt_select_recipe->bind_result($recipeName, $recipeInstructions, $recipeCalories, $recipePrepTime, $recipeCookTime, $recipeDifficultyLevel);
+            $stmt_select_recipe->bind_result($recipeName, $recipeInstructions, $recipeCalories, $recipePrepTime, $recipeCookTime, $recipeDifficultyLevel, $recipePrice);
             $stmt_select_recipe->fetch();
             $stmt_select_recipe->close();
 
-            $sql_recipe_insert = "INSERT INTO library_recipe_table (Recipe_Name, User_ID, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $sql_recipe_insert = "INSERT INTO library_recipe_table (Recipe_Name, User_ID, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level, Recipe_Price, Recipe_Public_Or_Private, Recipe_Cloned) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt_recipe_insert = $conn->prepare($sql_recipe_insert);
-            $stmt_recipe_insert->bind_param("sisiiis", $recipeName, $userId, $recipeInstructions, $recipeCalories, $recipePrepTime, $recipeCookTime, $recipeDifficultyLevel);
+            $stmt_recipe_insert->bind_param("sisiidiisi", $recipeName, $userId, $recipeInstructions, $recipeCalories, $recipePrepTime, $recipeCookTime, $recipeDifficultyLevel, $recipePrice, $public, $cloned);
             $stmt_recipe_insert->execute();
             $newRecipeId = $stmt_recipe_insert->insert_id;
             $stmt_recipe_insert->close();
@@ -65,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(array('message' => 'Invalid request method.'));
 }
 ?>
+
 
 
 
