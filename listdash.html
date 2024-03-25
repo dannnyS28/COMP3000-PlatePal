@@ -6,29 +6,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlatePal</title>
     <link rel="stylesheet" href="Styles.css">
+    <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
 </head>
 
 <body>
     <header>
-        <h1>PlatePal</h1>
-    </header>
-
     <nav>
         <a href="dashboard.html">Home</a>
         <a href="recipeslist.html">Recipe Library</a>
         <a href="publicrecipes.html">Public Recipes</a>
         <a href="listdash.html">Smart List</a>
         <a href="account.html">Account</a>
-    </nav>
-    <h1>Smart list</h1>
-    <button id="CreateListButton">Create Smart List</button>
-    <script>
-        const CreateListButton = document.getElementById("CreateListButton");
-        CreateListButton.addEventListener("click", function() {
-                window.location.href = "list.html";
-            });
-    </script>
+    </nav>        
+    </header>
 
+    <h1>Smart list</h1>
+    
+    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255,255,255,0.98); z-index: 100; display: flex; justify-content: center; align-items: center;">
+        <img src="pics/cutlery.gif" alt="Loading..." style="width: 100px; height: auto;">
+    </div>
+    
+    <button id="completeListButton">Create List</button>
+    <p id="TotalPrice">Total Price: £0</p>
+    <div id="databaseList"></div>
+    
+    <script>
+        
+        function hideLoadingScreen() {
+            document.getElementById("loadingScreen").style.display = "none";
+        }
+
+        let totalPrice = 0;
+        const selectedRecipes = {};
+
+        document.getElementById("completeListButton").addEventListener("click", function () {
+            localStorage.setItem('selectedRecipes', JSON.stringify(selectedRecipes));
+            window.location.href = "completelist.html";
+        });
+
+        function fetchRecipes() {
+            fetch('DatabaseGet.php')
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    displayRecipes(data);
+                    document.body.style.display = 'block'; 
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
+                    document.getElementById('databaseList').innerHTML = 'No Recipes were found. You can create one using the button above!';
+                    document.body.style.display = 'block'; 
+                });
+        }
+
+        function displayRecipes(recipes) {
+            const databaseList = document.getElementById('databaseList');
+            databaseList.innerHTML = '';
+
+            recipes.forEach(recipe => {
+                const recipeItem = document.createElement('div');
+                recipeItem.classList.add('recipe-item');
+                recipeItem.innerHTML = `
+                    <p>${recipe.Recipe_Name}</p>
+                    <p>${recipe.Recipe_Calories} Cal | ${recipe.Recipe_Difficulty_Level}/5 Difficulty</p>
+                    <p>£${recipe.Recipe_Price}</p>
+                    <div class="quantity-selector" data-recipe-id="${recipe.Recipe_ID}" data-recipe-price="${recipe.Recipe_Price}">
+                        <button class="decrease">-</button>
+                        <span class="quantity">0</span>
+                        <button class="increase">+</button>
+                    </div>
+                `;
+                setupQuantityButtons(recipeItem, recipe.Recipe_ID, recipe.Recipe_Price);
+                databaseList.appendChild(recipeItem);
+                hideLoadingScreen();
+            });
+        }
+
+        function setupQuantityButtons(recipeItem, recipeId, recipePrice) {
+            const decreaseButton = recipeItem.querySelector('.decrease');
+            const increaseButton = recipeItem.querySelector('.increase');
+            const quantitySpan = recipeItem.querySelector('.quantity');
+
+            const updatePriceAndSelection = (quantity) => {
+                if (quantity > 0) {
+                    selectedRecipes[recipeId] = quantity;
+                } else {
+                    delete selectedRecipes[recipeId];
+                }
+                calculateTotalPrice();
+            };
+
+            decreaseButton.addEventListener('click', () => {
+                let quantity = parseInt(quantitySpan.textContent);
+                if (quantity > 0) {
+                    quantitySpan.textContent = --quantity;
+                    updatePriceAndSelection(quantity);
+                }
+            });
+
+            increaseButton.addEventListener('click', () => {
+                let quantity = parseInt(quantitySpan.textContent);
+                quantitySpan.textContent = ++quantity;
+                updatePriceAndSelection(quantity);
+            });
+        }
+
+        function calculateTotalPrice() {
+            totalPrice = 0;
+            for (const recipeId in selectedRecipes) {
+                const quantity = selectedRecipes[recipeId];
+                const recipePrice = document.querySelector(`.quantity-selector[data-recipe-id="${recipeId}"]`).getAttribute('data-recipe-price');
+                totalPrice += quantity * parseFloat(recipePrice);
+            }
+            document.getElementById("TotalPrice").textContent = `Total Price: £${totalPrice.toFixed(2)}`;
+        }
+
+        window.onload = fetchRecipes;
+    </script>
 </body>
 
 </html>

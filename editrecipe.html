@@ -6,13 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Recipe</title>
     <link rel="stylesheet" href="Styles.css">
+    <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
 </head>
 
 <body>
     <header>
         <h1>Edit Recipe</h1>
     </header>
-
+    
+    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255,255,255,0.98); z-index: 100; display: flex; justify-content: center; align-items: center;">
+        <img src="pics/cutlery.gif" alt="Loading..." style="width: 100px; height: auto;">
+    </div>
     <nav>
         <a href="recipeslist.html">Back</a>
     </nav>
@@ -46,13 +50,41 @@
         <input type="checkbox" id="publicCheckbox" name="publicCheckbox"><br>
 
         <div id="ingredientDetailsContainer"></div>
+        <div id="totalPriceContainer"></div>
+
         <button id="addIngredientButton" type="button">Add Ingredient</button>
         <button type="submit">Save Changes</button>
     </form>
 
     <script>
+        function hideLoadingScreen() {
+            document.getElementById("loadingScreen").style.display = "none";
+        }
+        
+        function showLoadingScreen() {
+            document.getElementById("loadingScreen").style.display = "flex";
+        } 
+        
     document.addEventListener("DOMContentLoaded", function () {
     const recipeID = new URLSearchParams(window.location.search).get('recipeID');
+    const totalPriceContainer = document.getElementById("totalPriceContainer");
+        
+    function calculateTotalPrice() {
+        const ingredientGroups = document.querySelectorAll("#ingredientDetailsContainer > div");
+        let totalPrice = 0;
+
+        ingredientGroups.forEach(ingredientGroup => {
+            const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+            const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
+            totalPrice += price;
+        });
+
+        document.getElementById("totalPriceContainer").innerHTML = `Total Price: £${totalPrice.toFixed(2)}`;
+        return totalPrice;
+    }
+
+
+   
 
     fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
         .then(response => response.json())
@@ -75,14 +107,21 @@
                 const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
                 addIngredientRow(id, name, unit, amount, price);
             });
+            calculateTotalPrice();
+            hideLoadingScreen();
+
         })
         .catch(error => console.error('Error fetching recipe details:', error));
 
         document.getElementById('addIngredientButton').addEventListener('click', function () {
             addIngredientRow('', '', '', '', '');
+            calculateTotalPrice();
+
         });
 
         document.getElementById('editRecipeForm').addEventListener("submit", function (event) {
+            showLoadingScreen();
+
             event.preventDefault();
 
             const recipeName = document.getElementById('recipeNameInput').value;
@@ -102,6 +141,7 @@
                 const selectUnit = ingredientGroup.querySelector("select");
                 const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
                 const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+                
 
                 if (inputID && inputName && selectUnit && amountInput && priceInput) {
                     const ingredientID = inputID.value.trim();
@@ -109,7 +149,7 @@
 
                     selectedRecipeIngredients.push({
                         id: ingredientID,
-                        name: inputName.value.trim(),
+                        name: inputName.value.trim().replace(/\s+/g, '_'), 
                         unit: selectUnit.value.trim(),
                         amount: amountInput.value.trim(),
                         price: price
@@ -118,6 +158,7 @@
             });
 
             const formData = new FormData();
+            const totalPrice = calculateTotalPrice();
             formData.append('recipeID', recipeID);
             formData.append('recipeName', recipeName);
             formData.append('recipeInstructions', recipeInstructions);
@@ -126,6 +167,7 @@
             formData.append('recipeCook', recipeCook);
             formData.append('recipeDifficulty', recipeDifficulty);
             formData.append('isPublic', isPublic ? '1' : '0');
+            formData.append('totalPrice', totalPrice);
             formData.append('ingredients', JSON.stringify(selectedRecipeIngredients));
 
             saveRecipe(formData);

@@ -7,20 +7,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlatePal</title>
     <link rel="stylesheet" href="./Styles.css">
+    <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
 </head>
 
-<body style="display: none;">
+<body>
+    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255,255,255,0.98); z-index: 100; display: flex; justify-content: center; align-items: center;">
+        <img src="pics/cutlery.gif" alt="Loading..." style="width: 100px; height: auto;">
+    </div>
     <header>
-        <h1>PlatePal</h1>
-    </header>
-
     <nav>
         <a href="dashboard.html">Home</a>
         <a href="recipeslist.html">Recipe Library</a>
         <a href="publicrecipes.html">Public Recipes</a>
         <a href="listdash.html">Smart List</a>
         <a href="account.html">Account</a>
-    </nav>
+    </nav>        
+    </header>
+
 
     <h1>Public Recipes</h1>
     <input type="text" id="SearchInput" placeholder="Search Recipe">
@@ -28,6 +31,11 @@
     <div id="databaseList"></div>
 
     <script>
+        
+        function hideLoadingScreen() {
+            document.getElementById("loadingScreen").style.display = "none";
+        }        
+        
         function fetchRecipes() {
             fetch('DatabaseGetAllRecipe.php')
                 .then(response => {
@@ -39,31 +47,62 @@
                 .then(data => {
                     displayRecipes(data);
                     document.body.style.display = '';
+                    hideLoadingScreen();
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error.message);
                     document.getElementById('databaseList').innerHTML = 'No Recipes were found. You can create one on the library tab!';
                     document.body.style.display = '';
+                    hideLoadingScreen();
                 });
         }
 
-        function displayRecipes(recipes) {
+function displayRecipes(recipes) {
             const databaseList = document.getElementById('databaseList');
             databaseList.innerHTML = '';
 
             recipes.forEach(recipe => {
                 const recipeItem = document.createElement('div');
                 recipeItem.classList.add('recipe-item');
-                recipeItem.innerHTML = `<p>${recipe.Recipe_Name}</p><p>${recipe.Recipe_Calories} Cal | ${recipe.Recipe_Difficulty_Level}/5 Difficulty | £${recipe.Recipe_Price}</p>`;
 
-                const editButton = document.createElement('button');
-                editButton.textContent = 'View';
+                const recipeName = document.createElement('p');
+                recipeName.innerText = recipe.Recipe_Name;
+                const recipeDetails = document.createElement('p');
+                recipeDetails.innerHTML = `${recipe.Recipe_Calories} Cal | ${recipe.Recipe_Difficulty_Level}/5 Difficulty | £${recipe.Recipe_Price}`;
 
-                editButton.addEventListener("click", function () {
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.gap = '10px'; 
+
+                const viewButton = document.createElement('img');
+                viewButton.src = 'pics/view.png';
+                viewButton.alt = 'View';
+                viewButton.classList.add('recipe-button');
+                viewButton.addEventListener("click", function () {
                     window.location.href = "viewrecipe.html?recipeID=" + recipe.Recipe_ID;
                 });
+                viewButton.title = "View Recipe";
+                
+                if (recipe.Recipe_Image && recipe.Recipe_Image.trim() !== '') {
+                    const recipeImage = document.createElement('img');
+                    recipeImage.src = `${recipe.Recipe_Image}`; 
+                    recipeImage.alt = "Picture of " + recipe.Recipe_Name;
+                    recipeImage.onerror = function() { 
+                        this.style.display = 'none';
+                    };
+                    recipeItem.appendChild(recipeImage);
+                    recipeImage.classList.add('recipe-image');
 
-                recipeItem.appendChild(editButton);
+                }
+                
+
+
+                buttonContainer.appendChild(viewButton);
+
+                recipeItem.appendChild(recipeName);
+                recipeItem.appendChild(recipeDetails);
+                recipeItem.appendChild(buttonContainer);
+
                 databaseList.appendChild(recipeItem);
             });
         }

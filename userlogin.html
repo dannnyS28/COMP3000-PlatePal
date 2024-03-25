@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PlatePal</title>
     <link rel="stylesheet" href="Styles.css">
+    <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
 </head>
 
 <body>
@@ -32,7 +33,7 @@
         const PasswordInput = document.getElementById("PasswordInput");
         const SignUpButton = document.getElementById("SignUpButton");
         
-        const dynamicTextArray = ["Diet Helper", "Activity Logger", "Healthy Living Companion", "Your Personal Wellness Assistant"];
+        const dynamicTextArray = ["Diet Helper", "Recipe Sharer", "Shopping Companion", "Calorie Manager"];
         
 
         
@@ -52,7 +53,7 @@
                 index = (index + 1) % dynamicTextArray.length;
             }, 500); 
         }
-            setInterval(updateText, 5000); 
+            setInterval(updateText, 3000); 
         }
 
         LoginButton.addEventListener("click", function () {

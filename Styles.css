@@ -1,94 +1,94 @@
-/* styles.css */
 body {
-    font-family: monospace, sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     text-align: center;
-    background-color: lightgrey;
+    background-color: #E0E0E0;
 }
 
-header {
-    background-color: #0056b3;
-    color: white;
-    padding: 10px;
-    text-align: center;
+@font-face {
+    font-family: 'Roboto';
+    font-style: Bold;
+    font-weight: 700;
+    src: url('../fonts/Roboto-Bold.ttf') format('truetype');
 }
 
-nav {
-    background-color: #1C3131;;
-    overflow: hidden;
-    text-align: center;
-}
-
-nav a {
-    display: inline-block; 
-    color: white;
-    text-align: center;
-    padding: 15px 50px;
-    text-decoration: none;
-}
-
-nav a:hover {
-    background-color: #ddd;
-    color: black;
+@font-face {
+    font-family: 'Roboto';
+    font-style: italic;
+    font-weight: 700;
+    src: url('../fonts/Roboto-BoldItalic.ttf') format('truetype');
 }
 
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
+    font-family: 'Roboto';
+    font-style: Bold;    
 }
 
 header {
-    background-color: #2F4F4F;
+    background-color: #0F6CD8;
     color: white;
     text-align: center;
-    padding: 20px 0;
+    padding: 7px 0;
+    font-family: 'Roboto';
+    font-style: italic;
 }
 
-h1 {
-    margin: 0;
-}
-
-h2 {
+nav {
+    background-color: #0D47A1;
+    overflow: hidden;
     text-align: center;
-    margin-top: 30px;
+    border-radius: 40px;
+    display: inline-block;
 }
 
+nav a {
+    display: inline-block;
+    color: white;
+    padding: 15px 40px;
+    text-decoration: none;
+    transition: background-color 0.5s ease;
+}
 
+nav a:hover {
+    background-color: #64B5F6;
+    color: black;
+}
 
 input[type="text"],
 input[type="password"],
 button {
     margin-bottom: 10px;
     padding: 10px;
-    border: 2px solid #ccc; 
+    border: 2px solid #1565C0;
     border-radius: 4px;
-    
 }
 
 button {
-    background-color: #2F4F4F;
+    background-color: #0D47A1;
     color: white;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    border-width: 1px; 
+    border-width: 1px;
     width: 30%;
+    margin-top: 10px;
+}
 
+#cloneRecipeButton {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
 }
 
 button:hover {
-    background-color: #1C3131;
+    background-color: #64B5F6;
+    color: black;
 }
 
 p {
     text-align: center;
-}
-
-button#SignUpButton {
-    background-color: #28a745;
 }
 
 .button-container {
@@ -101,42 +101,21 @@ button#SignUpButton {
 }
 
 button#SignUpButton:hover {
-    background-color: #218838;
+    background-color: #1E88E5;
 }
 
-.fade-effect {
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+#loadingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(224, 224, 224, 0.97); 
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
-@media screen and (max-width: 600px) {
-    form {
-        width: 90%;
-    }
-}
-
-
-
-@keyframes fadeInOut {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-.fade-effect {
-  animation: fadeInOut 1s linear infinite; 
-}
-
-#selectedRecipesList {
-    display: none;
-}
-
 
 .content-container {
     display: flex;
@@ -157,5 +136,101 @@ button#SignUpButton:hover {
     margin-top: 20px;
     margin-right: 20px;
 }
+
+h1 {
+    margin-top: 20px;
+    font-family: 'Roboto';
+    font-style: Bold;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 30px;
+}
+
+#databaseList {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px; 
+}
+
+#recipeContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.recipe-item {
+    border: 6px solid #0D47A1;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 280px;
+    background-color: #E0E0E0;
+    margin: 10px;
+}
+
+.recipe-item img {
+    margin-bottom: 10px;
+}
+
+.recipe-image {
+    max-width: 300px;
+    height: 210px;
+    border-radius: 4px;
+}
+
+.recipe-button {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    margin-right: 20px;
+    transition: transform 0.2s ease;
+}
+
+.recipe-button:hover {
+    transform: scale(1.2);
+}
+
+.fade-effect {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    #databaseList {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center; 
+    }
+    
+    .recipe-item {
+        width: calc(33.33% - 20px); 
+        margin: 0 10px 20px; 
+    }
+}
+
+@media print {
+    header {
+        display: none;
+    }
+}
+
+#ingredientDetailsContainer {
+    font-size: 12px;
+}
+
+
+
+
+
+
+
+
+
+
 
 

@@ -23,17 +23,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->begin_transaction();
 
         try {
-            $sql_select_recipe = "SELECT Recipe_Name, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level, Recipe_Price FROM recipe_table WHERE Recipe_ID = ?";
+            $sql_select_recipe = "SELECT Recipe_Name, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level, Recipe_Price, recipe_image FROM recipe_table WHERE Recipe_ID = ?";
             $stmt_select_recipe = $conn->prepare($sql_select_recipe);
             $stmt_select_recipe->bind_param("i", $recipeId);
             $stmt_select_recipe->execute();
-            $stmt_select_recipe->bind_result($recipeName, $recipeInstructions, $recipeCalories, $recipePrepTime, $recipeCookTime, $recipeDifficultyLevel, $recipePrice);
-            $stmt_select_recipe->fetch();
+            $stmt_select_recipe->bind_result($recipeName, $recipeInstructions, $recipeCalories, $recipePrepTime, $recipeCookTime, $recipeDifficultyLevel, $recipePrice, $recipeImage);
+            if (!$stmt_select_recipe->fetch()) {
+                throw new Exception('Original recipe not found.');
+            }
             $stmt_select_recipe->close();
 
-            $sql_recipe_insert = "INSERT INTO library_recipe_table (Recipe_Name, User_ID, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level, Recipe_Price, Recipe_Public_Or_Private, Recipe_Cloned) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql_recipe_insert = "INSERT INTO library_recipe_table (Recipe_Name, User_ID, Recipe_Instructions, Recipe_Calories, Recipe_Prep_Time, Recipe_Cook_Time, Recipe_Difficulty_Level, Recipe_Price, Recipe_Public_Or_Private, Recipe_Cloned, Recipe_Image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt_recipe_insert = $conn->prepare($sql_recipe_insert);
-            $stmt_recipe_insert->bind_param("sisiidiisi", $recipeName, $userId, $recipeInstructions, $recipeCalories, $recipePrepTime, $recipeCookTime, $recipeDifficultyLevel, $recipePrice, $public, $cloned);
+            $stmt_recipe_insert->bind_param("sisddiidiis", $recipeName, $userId, $recipeInstructions, $recipeCalories, $recipePrepTime, $recipeCook_Time, $recipeDifficultyLevel, $recipePrice, $public, $cloned, $recipeImage);
             $stmt_recipe_insert->execute();
             $newRecipeId = $stmt_recipe_insert->insert_id;
             $stmt_recipe_insert->close();
@@ -53,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt_ingredient_insert->close();
 
             $conn->commit();
-            echo json_encode(array('message' => 'Recipe copied successfully.'));
+            echo json_encode(array('message' => 'Recipe copied successfully.', 'newImagePath' => $recipeImage));
         } catch (Exception $e) {
             $conn->rollback();
             echo json_encode(array('message' => 'Error copying recipe: ' . $e->getMessage()));
@@ -67,6 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(array('message' => 'Invalid request method.'));
 }
 ?>
+
+
+
+                
+
 
 
 

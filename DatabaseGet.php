@@ -17,11 +17,14 @@ if (isset($_SESSION['user_id'])) {
 
     $data = array();
 
-    $sql_recipe = "SELECT Recipe_ID, Recipe_Name, Recipe_Cloned, Recipe_Price, Recipe_Calories, Recipe_Difficulty_Level FROM recipe_table WHERE user_id = $user_id";
+    $sql_recipe = "SELECT Recipe_ID, Recipe_Name, Recipe_Cloned, Recipe_Price, Recipe_Calories, Recipe_Difficulty_Level, Recipe_Image FROM recipe_table WHERE user_id = $user_id";
     $result_recipe = $conn->query($sql_recipe);
 
     if ($result_recipe->num_rows > 0) {
         while ($row = $result_recipe->fetch_assoc()) {
+            if (!empty($row['Recipe_Image'])) {
+                $row['Recipe_Image'] = $row['Recipe_Image'];
+            }
             $data[] = $row;
         }
     }
@@ -31,6 +34,9 @@ if (isset($_SESSION['user_id'])) {
 
     if ($result_library->num_rows > 0) {
         while ($row = $result_library->fetch_assoc()) {
+            if (!empty($row['Recipe_Image'])) {
+                $row['Recipe_Image'] = $row['Recipe_Image'];
+            }
             $data[] = $row;
         }
     }
@@ -49,6 +55,7 @@ if (isset($_SESSION['user_id'])) {
 
 $conn->close();
 ?>
+
 
 
 

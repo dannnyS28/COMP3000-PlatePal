@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $recipeCook = $_POST['recipeCook'];
     $recipeDifficulty = $_POST['recipeDifficulty'];
     $isPublic = $_POST['isPublic'];
+    $totalPrice = $_POST['totalPrice'];
     $ingredients = json_decode($_POST['ingredients'], true);
 
     if (isset($_SESSION['user_id'])) {
@@ -30,10 +31,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
             if ($recipeID) {
-                $sql_recipe_update = "UPDATE recipe_table SET Recipe_Name=?, Recipe_Instructions=?, Recipe_Calories=?, Recipe_Prep_Time=?, Recipe_Cook_Time=?, Recipe_Difficulty_Level=?, Recipe_Public_Or_Private=? WHERE Recipe_ID=?";
+                $sql_recipe_update = "UPDATE recipe_table SET Recipe_Name=?, Recipe_Instructions=?, Recipe_Calories=?, Recipe_Prep_Time=?, Recipe_Cook_Time=?, Recipe_Difficulty_Level=?, Recipe_Public_Or_Private=?, Recipe_Price=CAST(? AS DECIMAL(10,2)) WHERE Recipe_ID=?";
                 $stmt_recipe_update = $conn->prepare($sql_recipe_update);
                 $isPublicValue = intval($isPublic);
-                $stmt_recipe_update->bind_param('ssssiiii', $recipeName, $recipeInstructions, $recipeCalories, $recipePrep, $recipeCook, $recipeDifficulty, $isPublicValue, $recipeID);
+                $stmt_recipe_update->bind_param('sssssssdi', $recipeName, $recipeInstructions, $recipeCalories, $recipePrep, $recipeCook, $recipeDifficulty, $isPublicValue, $totalPrice, $recipeID);
                 $stmt_recipe_update->execute();
                 $stmt_recipe_update->close();
             } else {
@@ -78,6 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(array('message' => 'Invalid request method.'));
 }
 ?>
+
+
 
 
 

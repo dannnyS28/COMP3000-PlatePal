@@ -5,36 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Selected Recipes - PlatePal</title>
     <link rel="stylesheet" href="./Styles.css">
+    <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
 </head>
 <body>
-    <header>
-        <h1>Selected Recipes</h1>
-    </header>
     
-    <div id="selectedRecipesList"></div>    
-    <h1>Shopping List</h1><br>
+    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255,255,255,0.98); z-index: 100; display: flex; justify-content: center; align-items: center;">
+        <img src="pics/cutlery.gif" alt="Loading..." style="width: 100px; height: auto;">
+    </div>
+
+    <header>
+        <div id="selectedRecipesList" style="display: none;"></div>
+        <button id="backButton">Back</button>
+        <button id="PrintButton">Print List</button>
+        <button id="completeButton">Complete Shop</button>
+    </header>
+    <h2>Shopping List</h2>
     <div id="ingredientDetailsContainer"></div>
+    <p>---------------</p>
     <p id="finalPrice">Final Price: £0</p>
-
-    <button href="list.html">Back</button>
-    <button id="PrintButton">Print List</button>
-    <button id="SaveButton">Save List</button>
-
 
 
     <script>
+        document.getElementById("completeButton").addEventListener("click", function () {
+            window.location.href = "listdash.html";
+        })
+        
+        document.getElementById("backButton").addEventListener("click", function () {
+            window.location.href = "listdash.html";
+        });
+
+        document.getElementById("PrintButton").addEventListener("click", function () {
+            printShoppingList();
+        });
+
         document.addEventListener("DOMContentLoaded", function () {
             fetchSelectedRecipes();
         });
 
         let finalPrice = 0;
+
+        function printShoppingList() {
+            window.print();
+        }
+
+        function hideLoadingScreen() {
+            document.getElementById("loadingScreen").style.display = "none";
+        }
         
+        function formatUnits(amount, unit) {
+            let formattedAmount = amount;
+            let formattedUnit = unit;
+
+            if (unit === 'mg' && amount >= 1000) {
+                formattedAmount = amount / 1000;
+                formattedUnit = 'g';
+            }
+            else if (unit === 'g' && amount >= 1000) {
+                formattedAmount = amount / 1000;
+                formattedUnit = 'kg';
+            }
+            else if (unit === 'ml' && amount >= 1000) {
+                formattedAmount = amount / 1000;
+                formattedUnit = 'litres';
+            }
+
+            return { formattedAmount, formattedUnit };
+        }
+
         function fetchSelectedRecipes() {
             const selectedRecipes = JSON.parse(localStorage.getItem('selectedRecipes') || '{}');
             const recipeIDs = Object.keys(selectedRecipes);
             if (recipeIDs.length > 0) {
                 fetchRecipeDetailsByID(recipeIDs, selectedRecipes);
-                fetchRecipeMultipleTimes(recipeIDs, selectedRecipes);
+                fetchRecipeMultipleTimes(recipeIDs, selectedRecipes).then(() => {
+                    hideLoadingScreen();
+                });
+            } else {
+                hideLoadingScreen();
             }
         }
 
@@ -45,7 +92,7 @@
                 fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
                     .then(response => response.json())
                     .then(data => {
-                        const name = data.Recipe_Name; 
+                        const name = data.Recipe_Name;
                         const quantity = selectedRecipes[recipeID];
                         const recipeItem = document.createElement('div');
                         recipeItem.classList.add('selected-recipe-item');
@@ -55,7 +102,7 @@
                         `;
                         selectedRecipesList.appendChild(recipeItem);
 
-                        const recipePrice = data.Price || 5; 
+                        const recipePrice = data.Price || 0;
                         finalPrice += quantity * recipePrice;
                         document.getElementById("finalPrice").textContent = `Final Price: £${finalPrice.toFixed(2)}`;
                     })
@@ -63,35 +110,71 @@
             });
         }
 
-        document.getElementById("editSelectionButton").addEventListener("click", function () {
-            window.location.href = "list.html"; 
-        });
-        
         function fetchRecipeMultipleTimes(recipeIDs, selectedRecipes) {
             const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
             ingredientDetailsContainer.innerHTML = '';
+            let fetchPromises = [];
+            let ingredientAggregator = {};
+
+            finalPrice = 0;
 
             recipeIDs.forEach(recipeID => {
                 const quantity = selectedRecipes[recipeID];
-                for (let i = 0; i < quantity; i++) {
-                    fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            const ingredientDetails = data.Ingredients_Details.split(',');
-                            ingredientDetails.forEach(ingredientDetail => {
-                                const [id, name, unit, amount, price] = ingredientDetail.trim().split(' ');
-                                const ingredientText = document.createElement('p');
-                                ingredientText.textContent = `${amount}${unit} ${name}`;
-                                ingredientDetailsContainer.appendChild(ingredientText);
-                            });
-                        })
-                        .catch(error => console.error('Error fetching recipe details:', error));
-                }
+                let fetchPromise = fetch(`DatabaseGetRecipe.php?recipeID=${recipeID}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const ingredientDetails = data.Ingredients_Details.split(',');
+                        ingredientDetails.forEach(ingredientDetail => {
+                            const [id, ingredientName, unit, amount, price] = ingredientDetail.trim().split(' ');
+                            const name = ingredientName.replace(/_/g, ' '); 
+                            const ingredientKey = `${name}-${unit}`;
+
+                            if (!ingredientAggregator[ingredientKey]) {
+                                ingredientAggregator[ingredientKey] = {
+                                    name,
+                                    unit,
+                                    amount: 0,
+                                    price: 0,
+                                };
+                            }
+
+                            ingredientAggregator[ingredientKey].amount += parseFloat(amount) * quantity;
+                            ingredientAggregator[ingredientKey].price += parseFloat(price) * quantity;
+                        });
+                    })
+                    .catch(error => console.error('Error fetching recipe details:', error));
+                fetchPromises.push(fetchPromise);
+            });
+
+            return Promise.all(fetchPromises).then(() => {
+                Object.entries(ingredientAggregator).forEach(([key, {name, unit, amount, price}]) => {
+                    const { formattedAmount, formattedUnit } = formatUnits(amount, unit);
+                    finalPrice += price;
+                    const ingredientText = document.createElement('div');
+                    ingredientText.classList.add('ingredient-item');
+                    ingredientText.innerHTML = `
+                                    <label>${formattedAmount.toFixed(2)} ${formattedUnit} | ${name} | £${price.toFixed(2)}</label>
+                                    <input type="checkbox" id="${name}" name="${name}" value="${name}" class="checkbox">
+                    `;
+                    ingredientDetailsContainer.appendChild(ingredientText);
+                });
+
+                document.getElementById("finalPrice").textContent = `Final Price: £${finalPrice.toFixed(2)}`;
             });
         }
+
+
+        function hideLoadingScreen() {
+            document.getElementById("loadingScreen").style.display = "none";
+        }
+
     </script>
+
 </body>
 </html>
+
+
+
 
 
 
