@@ -15,8 +15,12 @@ if ($conn->connect_error) {
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
 
-    $sql = "SELECT * FROM user_table WHERE user_id = $user_id";
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare("SELECT * FROM user_table WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+
+    $stmt->execute();
+
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
         $data = $result->fetch_assoc(); 
@@ -26,6 +30,8 @@ if (isset($_SESSION['user_id'])) {
         header('Content-Type: application/json');
         echo json_encode(array('message' => 'No user found'));
     }
+
+    $stmt->close();
 } else {
     header('Content-Type: application/json');
     echo json_encode(array('message' => 'User not logged in'));

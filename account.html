@@ -15,19 +15,20 @@
         <img src="pics/cutlery.gif" alt="Loading..." style="width: 100px; height: auto;">
     </div>
     
-    <header>
-        <h1>PlatePal</h1>
-    <nav>
-        <a href="dashboard.html">Home</a>
-        <a href="recipeslist.html">Recipe Library</a>
-        <a href="publicrecipes.html">Public Recipes</a>
-        <a href="listdash.html">Smart List</a>
-        <a href="account.html">Account</a>
-    </nav>        
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <img id=logoimage src="pics/Plate.png">
+        <nav>
+            <a href="dashboard.html">Home</a>
+            <a href="recipeslist.html">Recipe Library</a>
+            <a href="publicrecipes.html">Public Recipes</a>
+            <a href="listdash.html">Smart List</a>
+            <a href="log.html">Calorie Calculator</a>
+        </nav>
+        <a href="account.html"  title="Account Settings"><img src="pics/settings.png" alt="Settings" style="height: 50px; width: auto;"></a>
     </header>
 
     <h1>Account</h1>
-    <p>Forename: <input id="Forename" type="text" readonly></p>
+    <p>Forename: <input id="Forename2" type="text" readonly></p>
     <p>Surname: <input id="Surname" type="text" readonly></p>
     <p>Date of Birth: <input id="DOB" type="text" readonly></p>
     <p>Password: <input id="Password" type="text" readonly></p>
@@ -48,7 +49,7 @@
         EditButton.addEventListener("click", function () {
             if (!EditStatus) {
                 document.getElementById('EditButton').innerHTML = 'Submit';
-                document.getElementById('Forename').readOnly = false;
+                document.getElementById('Forename2').readOnly = false;
                 document.getElementById('Surname').readOnly = false;
                 document.getElementById('DOB').readOnly = false;
                 document.getElementById('Password').readOnly = false;
@@ -56,7 +57,7 @@
                 EditStatus = true;
             } else {
                 document.getElementById('EditButton').innerHTML = 'Edit';
-                document.getElementById('Forename').readOnly = true;
+                document.getElementById('Forename2').readOnly = true;
                 document.getElementById('Surname').readOnly = true;
                 document.getElementById('DOB').readOnly = true;
                 document.getElementById('Password').readOnly = true;
@@ -64,7 +65,7 @@
                 EditStatus = false;
 
                 const updatedDetails = {
-                    Forename: document.getElementById('Forename').value,
+                    Forename: document.getElementById('Forename2').value,
                     Surname: document.getElementById('Surname').value,
                     DOB: document.getElementById('DOB').value,
                     Password: document.getElementById('Password').value,
@@ -91,7 +92,7 @@
         });
 
         LogoutButton.addEventListener("click", function () {
-            window.location.href = "userlogin.html";
+            window.location.href = "Databaselogout.php";
         });
 
         function fetchAccount(retryCount = 0) {
@@ -120,7 +121,7 @@
         }
 
         function displayAccount(account) {
-            const Forename = document.getElementById('Forename');
+            const Forename = document.getElementById('Forename2');            
             const Surname = document.getElementById('Surname');
             const DOB = document.getElementById('DOB');
             const Password = document.getElementById('Password');
@@ -131,6 +132,11 @@
             DOB.value = account.User_DOB;
             Password.value = account.User_Password;
             Email.value = account.User_Email;
+            
+            if(Forename.value === 'undefined')
+            {
+                window.location.href = "userlogin.html"; 
+            }
         }
 
         window.onload = fetchAccount;

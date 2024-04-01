@@ -9,17 +9,19 @@
     <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
 </head>
 
-<body>
+<body class="custom-background">
     <header>
-        <h1>PlatePal</h1>
+        <img id=logoimage src="pics/Plate.png">
     </header>
     <form id="signupForm">
         <h1>Sign Up</h1>
-        <p>Forename: <input id="ForenameInput" type="text" placeholder="Forename" required></p>
-        <p>Surname: <input id="SurnameInput" type="text" placeholder="Surname" required></p>
-        <p>Date of Birth: <input id="DOBInput" type="text" pattern="\d{4}-\d{2}-\d{2}" placeholder="YYYY-MM-DD" required></p>
-        <p>Password: <input id="PasswordInput" type="password" placeholder="Password" required></p>
-        <p>Email: <input id="EmailInput" type="email" placeholder="Email" required></p>
+        <div class="inputContainersSign">
+            <p>Forename: <input id="ForenameInput" type="text" placeholder="Forename" required></p>
+            <p>Surname: <input id="SurnameInput" type="text" placeholder="Surname" required></p>
+            <p>Date of Birth: <input id="DOBInput" type="text" pattern="\d{4}-\d{2}-\d{2}" placeholder="YYYY-MM-DD" required></p>
+            <p>Password: <input id="PasswordInput" type="password" placeholder="Password" required></p>
+            <p>Email: <input id="EmailInput" type="email" placeholder="Email" required></p>
+        </div>
         <button id="BackButton">Back</button>
         <button type="submit" id="CreateAccountButton">Create Account</button>
     </form>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Recipe</title>
+    <title>PlatePal</title>
     <link rel="stylesheet" href="Styles.css">
     <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
 
@@ -13,6 +13,7 @@
 <body>
     <header>
         <h1>View Recipe</h1>
+        <p><input id="Forename" type="text" ></p>
     </header>
 
     <nav>
@@ -97,6 +98,36 @@
                 return response.json();
             });
     }
+        function fetchAccount() {
+            fetch('DatabaseGetAccount.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayAccount(data);
+                    document.body.style.display = '';
+                    hideLoadingScreen();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
+
+                });
+        }
+
+        function displayAccount(account) {
+            const Forename = document.getElementById('Forename');            
+            Forename.textContent = account.User_Name;
+
+            if(Forename.textContent === '' || Forename.textContent === undefined) {
+                window.location.href = "userlogin.html"; 
+            } else {
+                Forename.style.display = "none";
+            }
+        }
+        window.onload = fetchAccount;
 </script>
 
 

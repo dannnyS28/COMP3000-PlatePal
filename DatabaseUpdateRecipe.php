@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($_SESSION['user_id'])) {
         $userId = $_SESSION['user_id'];
-
         $servername = "proj-mysql.uopnet.plymouth.ac.uk";
         $username = "comp3000_dstephens";
         $password = "ZzuY937+";
@@ -38,15 +37,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_recipe_update->execute();
                 $stmt_recipe_update->close();
             } else {
-                echo json_encode(array('message' => 'Recipe ID is required.'));
+                echo json_encode(['message' => 'Recipe ID is required.']);
                 exit;
             }
 
             foreach ($ingredients as $ingredient) {
-                $ingredientId = $ingredient['id']; 
+                $ingredientId = $ingredient['id'];
                 $ingredientName = $ingredient['name'];
                 $unit = $ingredient['unit'];
-                $amount = isset($ingredient['amount']) ? $ingredient['amount'] : 0;
+                $amount = $ingredient['amount'];
                 $price = $ingredient['price'];
 
                 if ($ingredientId) {
@@ -64,21 +63,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
+            if (isset($_FILES['recipeImage']) && $_FILES['recipeImage']['error'] === UPLOAD_ERR_OK) {
+                $target_dir = "uploads/"; 
+                $imageFileType = strtolower(pathinfo($_FILES["recipeImage"]["name"], PATHINFO_EXTENSION));
+                $target_file = $target_dir . uniqid('img_', true) . '.' . $imageFileType;
+
+                if (move_uploaded_file($_FILES["recipeImage"]["tmp_name"], $target_file)) {
+                    $sql_image_update = "UPDATE recipe_table SET Recipe_Image=? WHERE Recipe_ID=?";
+                    $stmt_image_update = $conn->prepare($sql_image_update);
+                    $stmt_image_update->bind_param('si', $target_file, $recipeID);
+                    $stmt_image_update->execute();
+                    $stmt_image_update->close();
+                } else {
+                    throw new Exception("Failed to move uploaded file.");
+                }
+            }
+
             $conn->commit();
-            echo json_encode(array('message' => 'Recipe updated successfully.'));
+            echo json_encode(['message' => 'Recipe updated successfully.']);
         } catch (Exception $e) {
             $conn->rollback();
-            echo json_encode(array('message' => 'Error updating recipe: ' . $e->getMessage()));
+            echo json_encode(['message' => 'Error updating recipe: ' . $e->getMessage()]);
         }
 
         $conn->close();
     } else {
-        echo json_encode(array('message' => 'User is not logged in.'));
+        echo json_encode(['message' => 'User is not logged in.']);
     }
 } else {
-    echo json_encode(array('message' => 'Invalid request method.'));
+    echo json_encode(['message' => 'Invalid request method.']);
 }
 ?>
+
 
 
 

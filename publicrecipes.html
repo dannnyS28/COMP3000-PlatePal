@@ -14,18 +14,22 @@
     <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255,255,255,0.98); z-index: 100; display: flex; justify-content: center; align-items: center;">
         <img src="pics/cutlery.gif" alt="Loading..." style="width: 100px; height: auto;">
     </div>
-    <header>
-    <nav>
-        <a href="dashboard.html">Home</a>
-        <a href="recipeslist.html">Recipe Library</a>
-        <a href="publicrecipes.html">Public Recipes</a>
-        <a href="listdash.html">Smart List</a>
-        <a href="account.html">Account</a>
-    </nav>        
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <p><input id="Forename" type="text" ></p>        
+        <img id=logoimage src="pics/Plate.png">
+        <nav>
+            <a href="dashboard.html">Home</a>
+            <a href="recipeslist.html">Recipe Library</a>
+            <a href="publicrecipes.html">Public Recipes</a>
+            <a href="listdash.html">Smart List</a>
+            <a href="log.html">Calorie Calculator</a>
+        </nav>
+        <a href="account.html"  title="Account Settings"><img src="pics/settings.png" alt="Settings" style="height: 50px; width: auto;"></a>
     </header>
 
 
     <h1>Public Recipes</h1>
+    <p>Here are the recipes that are published by all users.</p>
     <input type="text" id="SearchInput" placeholder="Search Recipe">
     <button id="SearchButton">Search</button>
     <div id="databaseList"></div>
@@ -51,7 +55,7 @@
                 })
                 .catch(error => {
                     console.error('Error fetching data:', error.message);
-                    document.getElementById('databaseList').innerHTML = 'No Recipes were found. You can create one on the library tab!';
+                    document.getElementById('databaseList').innerHTML = 'No public recipes were found';
                     document.body.style.display = '';
                     hideLoadingScreen();
                 });
@@ -120,6 +124,38 @@ function displayRecipes(recipes) {
                 }
             });
         }
+        
+        function fetchAccount() {
+            fetch('DatabaseGetAccount.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayAccount(data);
+                    document.body.style.display = '';
+                    hideLoadingScreen();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
+                    window.location.href = "userlogin.html"; 
+
+                });
+        }
+
+        function displayAccount(account) {
+            const Forename = document.getElementById('Forename');            
+            Forename.textContent = account.User_Name;
+
+            if(Forename.textContent === '' || Forename.textContent === undefined) {
+                window.location.href = "userlogin.html"; 
+            } else {
+                Forename.style.display = "none";
+            }
+        }
+        window.onload = fetchAccount;
 
         document.getElementById('SearchButton').addEventListener('click', searchRecipes);
 

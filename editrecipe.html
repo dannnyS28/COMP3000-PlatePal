@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Recipe</title>
+    <title>PlatePal</title>
     <link rel="stylesheet" href="Styles.css">
     <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
 </head>
@@ -12,6 +12,8 @@
 <body>
     <header>
         <h1>Edit Recipe</h1>
+        <p><input id="Forename" type="text" ></p>
+
     </header>
     
     <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255,255,255,0.98); z-index: 100; display: flex; justify-content: center; align-items: center;">
@@ -22,6 +24,7 @@
     </nav>
 
     <form id="editRecipeForm">
+        <h1>Recipe Info</h1>
         <label for="recipeNameInput">Recipe Name:</label><br>
         <input type="text" id="recipeNameInput" placeholder="Recipe Name"><br>
 
@@ -48,11 +51,19 @@
 
         <label for="publicCheckbox">Public:</label><br>
         <input type="checkbox" id="publicCheckbox" name="publicCheckbox"><br>
+        <h1>Ingredients</h1>
 
         <div id="ingredientDetailsContainer"></div>
         <div id="totalPriceContainer"></div>
 
         <button id="addIngredientButton" type="button">Add Ingredient</button>
+        
+        <h1>Picture</h1>
+        <input type="file" id="recipeImageInput" name="recipeImage" accept="image/*"><br>
+        <label for="recipeImageInput">(Leave Blank if you wish the image to stay the same)</label><br>
+
+
+
         <button type="submit">Save Changes</button>
     </form>
 
@@ -99,6 +110,7 @@
             document.getElementById('recipeDifficultyInput').value = data.Recipe_Difficulty_Level;
             document.getElementById('publicCheckbox').checked = data.Recipe_Public_Or_Private;
 
+
             const ingredientDetailsContainer = document.getElementById('ingredientDetailsContainer');
             ingredientDetailsContainer.innerHTML = '';
 
@@ -131,6 +143,7 @@
             const recipeCook = document.getElementById('recipeCookInput').value;
             const recipeDifficulty = document.getElementById('recipeDifficultyInput').value;
             const isPublic = document.getElementById('publicCheckbox').checked;
+
 
             const selectedRecipeIngredients = [];
             const ingredientGroups = document.getElementById('ingredientDetailsContainer').querySelectorAll("div");
@@ -169,6 +182,12 @@
             formData.append('isPublic', isPublic ? '1' : '0');
             formData.append('totalPrice', totalPrice);
             formData.append('ingredients', JSON.stringify(selectedRecipeIngredients));
+            
+            const recipeImage = document.getElementById('recipeImageInput').files[0];
+            if (recipeImage) {
+                formData.append('recipeImage', recipeImage);
+            }
+
 
             saveRecipe(formData);
         });
@@ -242,6 +261,36 @@
                 });
         }
     });
+        function fetchAccount() {
+            fetch('DatabaseGetAccount.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayAccount(data);
+                    document.body.style.display = '';
+                    hideLoadingScreen();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
+
+                });
+        }
+
+        function displayAccount(account) {
+            const Forename = document.getElementById('Forename');            
+            Forename.textContent = account.User_Name;
+
+            if(Forename.textContent === '' || Forename.textContent === undefined) {
+                window.location.href = "userlogin.html"; 
+            } else {
+                Forename.style.display = "none";
+            }
+        }
+        window.onload = fetchAccount;
 
 </script>
 

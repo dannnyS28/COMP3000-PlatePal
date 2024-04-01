@@ -6,13 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PlatePal</title>
   <link rel="stylesheet" href="Styles.css">
-    <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
+  <link rel="icon" type="image/x-icon" href="/pics/Plate.png">
+  <p><input id="Forename" type="text"></p>
 </head>
 
 <body>
   <h1>PlatePal Recipe Manager</h1>
   <button id="recipeButton">Back</button>
   <button id="saveRecipeButton">Save Recipe</button>
+
+    <div id="image-processing-section">
+        <h2>Process Image</h2>
+        <p>Here you can upload an image of a recipe and have it loaded into the recipe creator or you can create a recipe manually below.</p>
+        <input type="file" id="recipeImageUpload" accept="image/*">
+        <button id="processImage">Process Image</button>
+    </div>
+
   <h1>Recipe Info</h1>
   <label for="recipeNameInput">Recipe Name:</label>
   <input type="text" id="recipeNameInput" placeholder="Recipe Name"><br>
@@ -48,165 +57,346 @@
   <h1>Pictures</h1>
   <label for="recipePictureInput">Recipe Picture:</label>
   <input type="file" id="recipePictureInput" name="recipePicture">
-
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
   <script>
-    const recipeButton = document.getElementById("recipeButton");
-    const saveRecipeButton = document.getElementById("saveRecipeButton");
-    const addIngredientButton = document.getElementById("addIngredientButton");
-    const recipeNameInput = document.getElementById("recipeNameInput");
-    const recipeInstructionsInput = document.getElementById("recipeInstructionsInput");
-    const ingredientContainer = document.getElementById("ingredientContainer");
-    const totalPriceContainer = document.getElementById("totalPriceContainer");
-    const recipes = [];
-
-    function calculateTotalPrice() {
-      const ingredientGroups = ingredientContainer.querySelectorAll("div");
-      let totalPrice = 0;
-
-      ingredientGroups.forEach(ingredientGroup => {
-        const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
-        const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
-        totalPrice += price;
-      });
-
-      const totalPriceDisplay = document.createElement("p");
-      totalPriceDisplay.textContent = `Total Price: £${totalPrice.toFixed(2)}`;
-
-      totalPriceContainer.innerHTML = "";
-      totalPriceContainer.appendChild(totalPriceDisplay);
-
-      return totalPrice;
-    }
-
-    function addIngredientGroup() {
-      const ingredientGroup = document.createElement("div");
-
-      const newInputName = document.createElement("input");
-      newInputName.type = "text";
-      newInputName.placeholder = "Enter name";
-
-      const newSelectUnit = document.createElement("select");
-      const units = ["mg", "g", "kg", "ml", "l", "teaspoon", "tablespoon", "cup", "Piece"];
-      units.forEach(unit => {
-        const option = document.createElement("option");
-        option.value = unit;
-        option.text = unit;
-        newSelectUnit.appendChild(option);
-      });
-
-      const newInputAmount = document.createElement("input");
-      newInputAmount.type = "text";
-      newInputAmount.placeholder = "Enter amount";
-
-      const newInputPrice = document.createElement("input");
-      newInputPrice.type = "text";
-      newInputPrice.placeholder = "Enter price";
-
-      newInputPrice.addEventListener("input", function () {
-        newInputPrice.value = `£${newInputPrice.value.replace(/[^0-9.]/g, '')}`;
-        calculateTotalPrice();
-      });
-
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Delete";
-      deleteButton.addEventListener("click", function () {
-        ingredientContainer.removeChild(ingredientGroup);
-        calculateTotalPrice();
-      });
-
-      ingredientGroup.appendChild(newInputName);
-      ingredientGroup.appendChild(newSelectUnit);
-      ingredientGroup.appendChild(newInputAmount);
-      ingredientGroup.appendChild(newInputPrice);
-      ingredientGroup.appendChild(deleteButton);
-      ingredientContainer.appendChild(ingredientGroup);
-      calculateTotalPrice();
-    }
       
-    
+      
+        document.addEventListener('DOMContentLoaded', function () {
+          const recipeButton = document.getElementById("recipeButton");
+          const saveRecipeButton = document.getElementById("saveRecipeButton");
+          const addIngredientButton = document.getElementById("addIngredientButton");
+          const recipeNameInput = document.getElementById("recipeNameInput");
+          const recipeInstructionsInput = document.getElementById("recipeInstructionsInput");
+          const ingredientContainer = document.getElementById("ingredientContainer");
+          const totalPriceContainer = document.getElementById("totalPriceContainer");
+          const recipes = [];
 
-    recipeButton.addEventListener("click", function () {
-      window.location.href = "recipeslist.html";
-    });
+          function hideLoadingScreen() {
+            document.getElementById("loadingScreen").style.display = "none";
+          }
 
-    addIngredientButton.addEventListener("click", addIngredientGroup);
+          function showLoadingScreen() {
+            document.getElementById("loadingScreen").style.display = "flex";
+          }
 
-    saveRecipeButton.addEventListener("click", function () {
-      const recipeName = recipeNameInput.value;
-      const recipeInstructions = recipeInstructionsInput.value;
-      const calories = document.getElementById("recipeCaloriesInput").value;
-      const prepTime = document.getElementById("recipePrepInput").value;
-      const cookTime = document.getElementById("recipeCookInput").value;
-      const difficultyLevel = document.getElementById("recipeDifficultyInput").value;
-      const isPublic = document.getElementById("publicCheckbox").checked ? 1 : 0;
-      const selectedRecipeIngredients = [];
-      const ingredientGroups = ingredientContainer.querySelectorAll("div");
-        
-        
+          function calculateTotalPrice() {
+            const ingredientGroups = ingredientContainer.querySelectorAll("div");
+            let totalPrice = 0;
 
-        
-
-      ingredientGroups.forEach(ingredientGroup => {
-        const inputName = ingredientGroup.querySelector('input[type="text"][placeholder="Enter name"]');
-        const selectUnit = ingredientGroup.querySelector("select");
-        const selectedUnit = selectUnit.value;
-
-        const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
-        const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
-
-        const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
-        const ingredientNameFormatted = inputName.value.replace(/\s+/g, '_');
+            ingredientGroups.forEach(ingredientGroup => {
+                const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+                if (priceInput) { 
+                    const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
+                    totalPrice += price;
+                }
+            });
 
 
-        selectedRecipeIngredients.push({
-          name: ingredientNameFormatted,
-          unit: selectedUnit,
-          amount: amountInput.value,
-          price: price
+            const totalPriceDisplay = document.createElement("p");
+            totalPriceDisplay.textContent = `Total Price: £${totalPrice.toFixed(2)}`;
+
+            totalPriceContainer.innerHTML = "";
+            totalPriceContainer.appendChild(totalPriceDisplay);
+
+            return totalPrice;
+          }
+
+          function addIngredientGroup() {
+            const ingredientGroup = document.createElement("div");
+
+            const newInputName = document.createElement("input");
+            newInputName.type = "text";
+            newInputName.placeholder = "Enter name";
+
+            const newSelectUnit = document.createElement("select");
+            const units = ["mg", "g", "kg", "ml", "l", "teaspoon", "tablespoon", "cup", "Piece"];
+            units.forEach(unit => {
+              const option = document.createElement("option");
+              option.value = unit;
+              option.text = unit;
+              newSelectUnit.appendChild(option);
+            });
+
+            const newInputAmount = document.createElement("input");
+            newInputAmount.type = "text";
+            newInputAmount.placeholder = "Enter amount";
+
+            const newInputPrice = document.createElement("input");
+            newInputPrice.type = "text";
+            newInputPrice.placeholder = "Enter price";
+
+            newInputPrice.addEventListener("input", function () {
+              newInputPrice.value = `£${newInputPrice.value.replace(/[^0-9.]/g, '')}`;
+              calculateTotalPrice();
+            });
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.addEventListener("click", function () {
+              ingredientContainer.removeChild(ingredientGroup);
+              calculateTotalPrice();
+            });
+
+            ingredientGroup.appendChild(newInputName);
+            ingredientGroup.appendChild(newSelectUnit);
+            ingredientGroup.appendChild(newInputAmount);
+            ingredientGroup.appendChild(newInputPrice);
+            ingredientGroup.appendChild(deleteButton);
+            ingredientContainer.appendChild(ingredientGroup);
+            calculateTotalPrice();
+          }
+
+            async function extractDetailsFromImage(image) {
+                try {
+                    const result = await Tesseract.recognize(
+                        image,
+                        'eng',
+                        { logger: m => console.log(m) }
+                    );
+                    const text = result.data.text.trim();
+                    const lines = text.split('\n');
+
+                    const details = extractAdditionalDetails(lines);
+
+                    populateFields(details); 
+                } catch (error) {
+                    console.error('Error extracting details from image:', error);
+                }
+            }
+
+            function extractAdditionalDetails(lines) {
+                const details = {
+                    name: '',
+                    ingredients: [],
+                    instructions: '',
+                    calories: '',
+                    prepTime: '',
+                    cookTime: '',
+                    difficulty: ''
+                };
+
+                let currentSection = '';
+
+                lines.forEach(line => {
+                    line = line.trim();
+
+                    if (line.startsWith('Title:')) {
+                        details.name = line.replace('Title:', '').trim();
+                    } else if (line.toLowerCase() === 'ingredients:') {
+                        currentSection = 'ingredients';
+                    } else if (line.toLowerCase() === 'instructions:') {
+                        currentSection = 'instructions';
+                    } else if (line.toLowerCase().startsWith('calories:')) {
+                        details.calories = line.replace('Calories:', '').trim();
+                    } else if (line.toLowerCase().startsWith('prep time:')) {
+                        details.prepTime = line.replace('Prep Time:', '').trim();
+                    } else if (line.toLowerCase().startsWith('cook time:')) {
+                        details.cookTime = line.replace('Cook Time:', '').trim();
+                    } else if (line.toLowerCase().startsWith('difficulty:')) {
+                        const difficultyMatch = line.match(/Difficulty:\s*(\d+)/i);
+                        if (difficultyMatch && difficultyMatch.length > 1) {
+                            details.difficulty = difficultyMatch[1];
+                        }
+                    } else {
+                        if (currentSection === 'ingredients') {
+                            details.ingredients.push(line);
+                        } else if (currentSection === 'instructions') {
+                            details.instructions += line + '\n';
+                        }
+                    }
+                });
+
+                return details;
+            }
+
+
+
+            
+            
+            function extractDetailFromIngredients(ingredients, regex) {
+                for (let ingredient of ingredients) {
+                    const match = ingredient.match(regex);
+                    if (match) return match[1];
+                }
+                return ''; 
+            }
+
+            function extractValue(line) {
+                const matches = line.match(/\d+/g);
+                return matches ? matches[0] : '';
+            }
+
+            function populateFields(recipeDetails) {
+                recipeNameInput.value = recipeDetails.name;
+                recipeInstructionsInput.value = recipeDetails.instructions;
+                recipeCaloriesInput.value = recipeDetails.calories;
+                recipePrepInput.value = recipeDetails.prepTime;
+                recipeCookInput.value = recipeDetails.cookTime;
+                recipeDifficultyInput.value = recipeDetails.difficulty;
+
+                ingredientContainer.innerHTML = '';
+
+                recipeDetails.ingredients.forEach(ingredientLine => {
+                    if (!ingredientLine.trim()) return;
+
+                    const ingredientGroup = document.createElement("div");
+
+                    const newInputName = document.createElement("input");
+                    newInputName.type = "text";
+                    newInputName.placeholder = "Enter name";
+                    newInputName.value = ingredientLine; 
+                    ingredientGroup.appendChild(newInputName);
+
+                    const newSelectUnit = createUnitSelectElement();
+                    ingredientGroup.appendChild(newSelectUnit);
+
+                    const newInputAmount = document.createElement("input");
+                    newInputAmount.type = "text";
+                    newInputAmount.placeholder = "Enter amount";
+                    ingredientGroup.appendChild(newInputAmount);
+
+                    const newInputPrice = document.createElement("input");
+                    newInputPrice.type = "text";
+                    newInputPrice.placeholder = "Enter price";
+                    ingredientGroup.appendChild(newInputPrice);
+
+                    const deleteButton = document.createElement("button");
+                    deleteButton.textContent = "Delete";
+                    deleteButton.onclick = function () {
+                        ingredientContainer.removeChild(ingredientGroup);
+                    };
+                    ingredientGroup.appendChild(deleteButton);
+
+                    ingredientContainer.appendChild(ingredientGroup);
+                });
+
+                function createUnitSelectElement() {
+                    const units = ["mg", "g", "kg", "ml", "l", "teaspoon", "tablespoon", "cup", "piece"];
+                    const newSelectUnit = document.createElement("select");
+                    units.forEach(unit => {
+                        const option = document.createElement("option");
+                        option.value = unit;
+                        option.text = unit;
+                        newSelectUnit.appendChild(option);
+                    });
+                    return newSelectUnit;
+                }
+            }
+
+
+          recipeButton.addEventListener("click", function () {
+            window.location.href = "recipeslist.html";
+          });
+
+          addIngredientButton.addEventListener("click", addIngredientGroup);
+
+          saveRecipeButton.addEventListener("click", function () {
+            const recipeName = recipeNameInput.value;
+            const recipeInstructions = recipeInstructionsInput.value;
+            const calories = document.getElementById("recipeCaloriesInput").value;
+            const prepTime = document.getElementById("recipePrepInput").value;
+            const cookTime = document.getElementById("recipeCookInput").value;
+            const difficultyLevel = document.getElementById("recipeDifficultyInput").value;
+            const isPublic = document.getElementById("publicCheckbox").checked ? 1 : 0;
+            const selectedRecipeIngredients = [];
+            const ingredientGroups = ingredientContainer.querySelectorAll("div");
+
+            ingredientGroups.forEach(ingredientGroup => {
+              const inputName = ingredientGroup.querySelector('input[type="text"][placeholder="Enter name"]');
+              const selectUnit = ingredientGroup.querySelector("select");
+              const selectedUnit = selectUnit.value;
+
+              const amountInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter amount"]');
+              const priceInput = ingredientGroup.querySelector('input[type="text"][placeholder="Enter price"]');
+
+              const price = parseFloat(priceInput.value.replace(/[^\d.]/g, '')) || 0;
+              const ingredientNameFormatted = inputName.value.replace(/\s+/g, '_');
+
+              selectedRecipeIngredients.push({
+                name: ingredientNameFormatted,
+                unit: selectedUnit,
+                amount: amountInput.value,
+                price: price
+              });
+            });
+
+            if (recipeName && recipeInstructions && calories && prepTime && cookTime && difficultyLevel && selectedRecipeIngredients.length > 0) {
+              saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, selectedRecipeIngredients);
+            }
+          });
+
+          const processImageButton = document.getElementById("processImage");
+
+          processImageButton.addEventListener("click", function () {
+            const fileInput = document.getElementById("recipeImageUpload");
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    const image = new Image();
+                    image.src = event.target.result;
+
+                    image.onload = function () {
+                        try {
+                            Tesseract.recognize(
+                                image.src, 
+                                'eng',
+                                { logger: m => console.log(m) }
+                            ).then(({ data: { text } }) => {
+                                console.log(text); 
+                                const lines = text.split('\n');
+                                const details = extractAdditionalDetails(lines);
+                                populateFields(details);
+                            });
+                        } catch (error) {
+                            console.error('Error processing image with Tesseract.js:', error);
+                        }
+                    };
+                };
+
+                reader.readAsDataURL(file);
+            }
         });
-      });
 
-      if (recipeName && recipeInstructions && calories && prepTime && cookTime && difficultyLevel && selectedRecipeIngredients.length > 0) {
-        saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, selectedRecipeIngredients);
-      }
-    });
 
-    function saveRecipe(recipeName, recipeInstructions, calories, prepTime, cookTime, difficultyLevel, isPublic, ingredients) {
-      const totalPrice = calculateTotalPrice();
-      const formData = new FormData();
-      formData.append('recipeName', recipeName);
-      formData.append('recipeInstructions', recipeInstructions);
-      formData.append('calories', calories);
-      formData.append('prepTime', prepTime);
-      formData.append('cookTime', cookTime);
-      formData.append('difficultyLevel', difficultyLevel);
-      formData.append('isPublic', isPublic ? '1' : '0');
-      formData.append('totalPrice', totalPrice);
-      formData.append('ingredients', JSON.stringify(ingredients));
+          function fetchAccount() {
+            fetch('DatabaseGetAccount.php')
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error('Network response was not ok');
+                }
+                return response.json();
+              })
+              .then(data => {
+                displayAccount(data);
+                document.body.style.display = '';
+                hideLoadingScreen();
+              })
+              .catch(error => {
+              });
+          }
 
-      const pictureInput = document.getElementById('recipePictureInput');
-      if(pictureInput.files[0]) { 
-        formData.append('recipePicture', pictureInput.files[0]);
-      }
+          function displayAccount(account) {
+            const Forename = document.getElementById('Forename');
+            Forename.textContent = account.User_Name;
 
-      fetch('DatabasePut.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data.message);
-        window.location.href = "recipeslist.html";
-      })
-      .catch(error => {
-        console.error('Error saving recipe:', error.message);
-      });
-    }
+            if (Forename.textContent === '' || Forename.textContent === undefined) {
+              window.location.href = "userlogin.html";
+            } else {
+              Forename.style.display = "none";
+            }
+          }
+          window.onload = fetchAccount;
+        });
 
   </script>
 </body>
 
 </html>
+
+
 
 
 

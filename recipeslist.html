@@ -14,17 +14,21 @@
         <img src="pics/cutlery.gif" alt="Loading..." style="width: 100px; height: auto;">
     </div>
 
-    <header>
+    <header style="display: flex; justify-content: space-between; align-items: center;">
+        <p><input id="Forename" type="text" ></p>
+        <img id=logoimage src="pics/Plate.png">
         <nav>
             <a href="dashboard.html">Home</a>
             <a href="recipeslist.html">Recipe Library</a>
             <a href="publicrecipes.html">Public Recipes</a>
             <a href="listdash.html">Smart List</a>
-            <a href="account.html">Account</a>
-        </nav>        
+            <a href="log.html">Calorie Calculator</a>
+        </nav>
+        <a href="account.html"  title="Account Settings"><img src="pics/settings.png" alt="Settings" style="height: 50px; width: auto;"></a>
     </header>
 
     <h1>Recipe Library</h1>
+    <p>Here are your personal recipes and the recipes your have cloned from other users.</p>    
     <button id="CreateRecipeButton">Create New Recipe</button>
     <div id="recipeContainer">
         <div id="databaseList"></div>
@@ -144,8 +148,40 @@
                 databaseList.appendChild(recipeItem);
             });
         }
+        function fetchAccount() {
+            fetch('DatabaseGetAccount.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayAccount(data);
+                    document.body.style.display = '';
+                    hideLoadingScreen();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error.message);
 
-        window.onload = fetchRecipes;
+                });
+        }
+
+        function displayAccount(account) {
+            const Forename = document.getElementById('Forename');            
+            Forename.textContent = account.User_Name;
+
+            if(Forename.textContent === '' || Forename.textContent === undefined) {
+                window.location.href = "userlogin.html"; 
+            } else {
+                Forename.style.display = "none";
+            }
+        }
+
+        window.onload = fetchAccount();
+        window.onload = fetchRecipes();
+        
+
     </script>
 </body>
 </html>
