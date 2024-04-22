@@ -47,3 +47,11 @@ Recipe Creation from Images: A recipe can be created within the recipe library p
 User Account Management: The users account details can be modified within the account page. This page can be accessed through clicking on the settings icon. To modify user details simply click on the edit button and then change the desired details. Once you have finished modifying them you need to click on the confirm button. After this the details will be updated within the database. 
 
 Recipe Cloning: A recipe can be cloned within the public recipes page. The user simply need to choose which recipe they wish to clone and click on the eye icon next to it. After this a clone button can be found at the bottom of the page. Press this button and the recipe will be saved in your personal library.
+
+This product includes software developed by the Tesseract.js project (https://github.com/naptha/tesseract.js/).
+Tesseract.js is used under the Apache License 2.0, available at https://www.apache.org/licenses/LICENSE-2.0.
+Portions of this software were modified for use in this project.
+
+Icon made by Freepik from www.flaticon.com.
+
+Images used in this project were sourced from www.shutterstock.com under a Extended License. Attribution for these images is not required under the terms of the license.
